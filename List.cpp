@@ -12,8 +12,7 @@ int main ()
     FILE* file_html = fopen ("Debag.html", "w");
     fprintf (file_html, "<pre>\n\n");
 
-
-    Create_Image (&List, file_html);
+    List_Dump_In_Html (&List, file_html);
 
     List.Array_Value[1] = 10;
     List.Size = 1;
@@ -25,7 +24,7 @@ int main ()
     List.Array_Next[0] = 1;
     List.Array_Prev[0] = 1;
     List.Free = 2;
-    Create_Image (&List, file_html);
+    List_Dump_In_Html (&List, file_html);
 
     List.Array_Value[2] = 20;
     List.Size = 2;
@@ -39,16 +38,18 @@ int main ()
     List.Array_Next[2] = 0;
     List.Array_Prev[2] = 1;
     List.Free = 3;
-    Create_Image (&List, file_html);
+    List_Dump_In_Html (&List, file_html);
 
     List.Array_Next[5] = 45;
-    Create_Image (&List, file_html);
+    List_Dump_In_Html (&List, file_html);
 
     List.Array_Prev[7] = 23;
-    Create_Image (&List, file_html);
+    List_Dump_In_Html (&List, file_html);
 
+    fprintf (file_html, "+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+\n\n");
     fclose (file_html);
 
+    List_Dtor (&List);
     return 0;
 }
 
@@ -65,7 +66,7 @@ int List_Ctor (list_k* const List)
     List->Array_Value[0] = Canary;
 
     List->Head = 0;
-    List->Array_Next = (ssize_t*) calloc (List->Capacity, sizeof (ssize_t));
+    List->Array_Next = (size_t*) calloc (List->Capacity, sizeof (size_t));
     if (List->Array_Next == NULL)
     {
         printf ("Error allocation memory for array next in List_Ctor!\n");
@@ -95,6 +96,86 @@ int List_Ctor (list_k* const List)
     return 0;
 }
 
+int List_Dtor (list_k* const List)
+{
+    List->Size = 0;
+    List->Capacity = 0;
+
+    List->Array_Value[0] = 0;
+    free (List->Array_Value);
+
+    List->Head = 0;
+    for (size_t i = 0; i < List->Capacity; i++)
+    {
+        List->Array_Next[i] = 0;
+    }
+    free (List->Array_Next);
+
+    List->Tail = 0;
+    for (size_t i = 0; i < List->Capacity; i++)
+    {
+        List->Array_Prev[i] = 0;
+    }
+    free (List->Array_Prev);
+
+    List->Free = 0;
+
+    return 0;
+}
+
+int List_Dump_In_Html (const list_k* const List, FILE* file_html)
+{
+    char Name_File[25] = "File_txt/File_";
+    Naming_File (Name_File);
+
+    FILE* file = fopen (Name_File, "w");
+
+    Dump_For_Graph (List, file);
+
+    fclose (file);
+
+    char Command[54] = "dot ";
+    Naming_Command_Dot (Command, Name_File);
+
+    system (Command);
+
+    Dump_For_Html (List, file_html, Name_File);
+
+    return 0;
+}
+
+int Naming_File (char* const Name_File)
+{
+    static int Counter = 1;
+
+    char Temp_Str[11];
+    itoa_k (Counter, Temp_Str);
+
+    strcat(Name_File, Temp_Str);
+
+    strcat(Name_File, ".txt");
+
+    Counter++;
+    return 0;
+}
+
+int Naming_Command_Dot (char* const Name_Command, char* const Name_File)
+{
+    strcat(Name_Command, Name_File);
+    strcat(Name_Command, " -T png -o ");
+
+    Name_File[5] = 'p';
+    Name_File[6] = 'n';
+    Name_File[7] = 'g';
+    size_t Len = strlen (Name_File);
+    Name_File[Len - 3] = 'p';
+    Name_File[Len - 2] = 'n';
+    Name_File[Len - 1] = 'g';
+    strcat(Name_Command, Name_File);
+
+    return 0;
+}
+
 int Dump_For_Graph (const list_k* const List, FILE* const file)
 {
     fprintf (file, "digraph G\n"
@@ -106,7 +187,7 @@ int Dump_For_Graph (const list_k* const List, FILE* const file)
 
     for (size_t i = 0; i < List->Capacity; i++)
     {
-        fprintf (file, "    %zu [shape = Mrecord, label = \"index = %zu | value = %d | {prev = %zd | next = %zd}\", style = \"filled\", fillcolor = \"lightgrey\"];\n", i, i, List->Array_Value[i], List->Array_Prev[i], List->Array_Next[i]);
+        fprintf (file, "    %zu [shape = Mrecord, label = \"index = %zu | value = %d | {prev = %zd | next = %zu}\", style = \"filled\", fillcolor = \"lightgrey\"];\n", i, i, List->Array_Value[i], List->Array_Prev[i], List->Array_Next[i]);
     }
     fprintf (file, "\n");
 
@@ -128,29 +209,29 @@ int Dump_For_Graph (const list_k* const List, FILE* const file)
 
     for (size_t i = 0; i < List->Capacity ; i++)
     {
-        if (List->Array_Next[i] >= 0 && List->Array_Next[i] < List->Capacity)
+        if (List->Array_Next[i] < List->Capacity)
         {
             if (List->Array_Prev[i] == -1 && List->Array_Prev[List->Array_Next[i]] == -1)
             {
-                fprintf (file, "    %zu->%zd[color = \"green\"];\n", i, List->Array_Next[i]);
+                fprintf (file, "    %zu->%zu[color = \"green\"];\n", i, List->Array_Next[i]);
             }
 
             else
             {
-                if (List->Array_Prev[List->Array_Next[i]] == i)
+                if (List->Array_Prev[List->Array_Next[i]] == ssize_t (i))
                 {
-                    fprintf (file, "    %zu->%zd[color = \"pink2:goldenrod1\", dir = both];\n", i, List->Array_Next[i]);
+                    fprintf (file, "    %zu->%zu[color = \"pink2:goldenrod1\", dir = both];\n", i, List->Array_Next[i]);
                 }
 
                 else
                 {
-                    fprintf (file, "    %zu->%zd[color = \"pink2\"];\n", i, List->Array_Next[i]);
+                    fprintf (file, "    %zu->%zu[color = \"pink2\"];\n", i, List->Array_Next[i]);
                 }
             }
         }
         else
         {
-            fprintf (file, "    %zu->%zd;\n", i, List->Array_Next[i]);
+            fprintf (file, "    %zu->%zu;\n", i, List->Array_Next[i]);
         }
     }
     fprintf (file, "\n");
@@ -159,7 +240,7 @@ int Dump_For_Graph (const list_k* const List, FILE* const file)
     {
         if (List->Array_Prev[i] != -1)
         {
-            if (List->Array_Prev[i] >= 0 && List->Array_Prev[i] < List->Capacity)
+            if (size_t (List->Array_Prev[i]) < List->Capacity)
             {
                 if (List->Array_Next[List->Array_Prev[i]] != i)
                 {
@@ -177,113 +258,14 @@ int Dump_For_Graph (const list_k* const List, FILE* const file)
     return 0;
 }
 
-int Create_Image (const list_k* const List, FILE* file_html)
-{
-    char Name_File[25] = "File_txt/File_";
-    Naming_File (Name_File);
-
-    FILE* file = fopen (Name_File, "w");
-
-    Dump_For_Graph (List, file);
-
-    fclose (file);
-
-    char Command[54] = "dot ";
-    Naming_Command (Command, Name_File);
-
-    system (Command);
-
-    Dump_For_Html (List, file_html, Name_File);
-    return 0;
-}
-
-int Naming_Command (char* const Name_Command, char* const Name_File)
-{
-    strcat(Name_Command, Name_File);
-    strcat(Name_Command, " -T png -o ");
-
-    Name_File[5] = 'p';
-    Name_File[6] = 'n';
-    Name_File[7] = 'g';
-    size_t Len = strlen (Name_File);
-    Name_File[Len - 3] = 'p';
-    Name_File[Len - 2] = 'n';
-    Name_File[Len - 1] = 'g';
-    strcat(Name_Command, Name_File);
-
-    return 0;
-}
-
-int Naming_File (char* const Name_File)
-{
-    static int Counter = 1;
-
-    char Temp_Str[11];
-    itoa_k (Counter, Temp_Str);
-
-    strcat(Name_File, Temp_Str);
-
-    strcat(Name_File, ".txt");
-
-    Counter++;
-    return 0;
-}
-
-char* itoa_k (int Number, char* const Str)
-{
-    size_t i = 0;
-
-    if (Number == 0)
-    {
-        Str[i] = '0';
-        i++;
-
-        Str[i] = '\0';
-
-        return Str;
-    }
-
-    while (Number != 0)
-    {
-        int Rem = Number % 10;
-
-        Str[i] = char (Rem) + '0';
-        i++;
-
-        Number = Number / 10;
-    }
-
-    Str[i] = '\0';
-
-    Reverse_Str (Str);
-
-    return Str;
-}
-
-int Reverse_Str (char* const Str)
-{
-    size_t i = 0;
-    size_t j = strlen (Str) - 1;
-
-    while (i < j)
-    {
-        char Symbol = Str[i];
-        Str[i] = Str[j];
-        Str[j] = Symbol;
-        i++;
-        j--;
-    }
-
-    return 0;
-}
-
 int Dump_For_Html (const list_k* const List, FILE* const file, const char* const Name_File)
 {
+    fprintf (file, "+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+\n\n");
     fprintf (file, "SIZE = %zu\n", List->Size);
     fprintf (file, "CAPACITY = %zu\n", List->Capacity);
-    fprintf (file, "HEAD = %zd\n", List->Head);
-    fprintf (file, "TAIL = %zd\n", List->Tail);
-    fprintf (file, "FREE = %zd\n", List->Free);
+    fprintf (file, "HEAD = %zu\n", List->Head);
+    fprintf (file, "TAIL = %zu\n", List->Tail);
+    fprintf (file, "FREE = %zu\n", List->Free);
     fprintf (file, "\n");
 
     fprintf (file, "DATA:\n");
@@ -341,7 +323,7 @@ int Dump_For_Html (const list_k* const List, FILE* const file, const char* const
         }
         else
         {
-            fprintf (file, "| %4zd ", List->Array_Next[i]);
+            fprintf (file, "| %4zu ", List->Array_Next[i]);
         }
 
 
@@ -401,3 +383,51 @@ int Dump_For_Html (const list_k* const List, FILE* const file, const char* const
     return 0;
 }
 
+
+int Reverse_Str (char* const Str)
+{
+    size_t i = 0;
+    size_t j = strlen (Str) - 1;
+
+    while (i < j)
+    {
+        char Symbol = Str[i];
+        Str[i] = Str[j];
+        Str[j] = Symbol;
+        i++;
+        j--;
+    }
+
+    return 0;
+}
+
+char* itoa_k (int Number, char* const Str)
+{
+    size_t i = 0;
+
+    if (Number == 0)
+    {
+        Str[i] = '0';
+        i++;
+
+        Str[i] = '\0';
+
+        return Str;
+    }
+
+    while (Number != 0)
+    {
+        int Rem = Number % 10;
+
+        Str[i] = char (Rem) + '0';
+        i++;
+
+        Number = Number / 10;
+    }
+
+    Str[i] = '\0';
+
+    Reverse_Str (Str);
+
+    return Str;
+}
