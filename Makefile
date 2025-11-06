@@ -19,6 +19,12 @@ all:
 	@$(CC) List.cpp $(DED_FLAGS) -o a.out
 	@./a.out
 
+classic:
+	@mkdir File_png
+	@mkdir File_txt
+	@$(CC) List_Classic.cpp $(DED_FLAGS) -o a.out
+	@./a.out
+
 clean:
 	@rm -rf a.out
 	@rm -rf File_png
