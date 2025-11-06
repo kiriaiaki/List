@@ -13,16 +13,29 @@ int main ()
         return 0;
     }
 
-    List_Insert_On (10, 1, &List, file_html);
-    List_Insert_On (20, 2, &List, file_html);
-    List_Insert_On (30, 3, &List, file_html);
-    List_Insert_On (25, 3, &List, file_html);
-    List_Insert_On (5, 1, &List, file_html);
-    List_Insert_On (15, 2, &List, file_html);
-    List_Delete (2, &List, file_html);
-    List_Delete (3, &List, file_html);
-    List_Insert_On (2007, 1, &List, file_html);
+    // List_Insert_After (10, 0, &List, file_html);
+    // List_Insert_After (20, 1, &List, file_html);
+    // List_Insert_After (30, 2, &List, file_html);
+    // List_Insert_After (25, 2, &List, file_html);
+    // List_Insert_After (5, 0, &List, file_html);
+    // List_Insert_After (15, 1, &List, file_html);
+    // List_Delete (2, &List, file_html);
+    // List_Delete (3, &List, file_html);
+    // List_Insert_After (2007, 4, &List, file_html);
+    // List_Insert_Before (1111, 3, &List, file_html);
 
+    List_Insert_After (10, 0, &List, file_html);
+    List_Insert_After (20, 1, &List, file_html);
+    List_Insert_After (30, 2, &List, file_html);
+    List_Insert_After (40, 3, &List, file_html);
+    List_Insert_After (50, 4, &List, file_html);
+    List_Insert_After (60, 5, &List, file_html);
+    List_Insert_After (70, 6, &List, file_html);
+    List_Insert_After (80, 7, &List, file_html);
+    List_Insert_After (90, 8, &List, file_html);
+    List_Insert_After (100, 9, &List, file_html);
+    List_Push_Front   (5, &List, file_html);
+    List_Push_Back    (110, &List, file_html);
 
     fclose (file_html);
     List_Dtor (&List);
@@ -347,7 +360,14 @@ int Dump_For_Graph (const list_k* const List, FILE* const file)
 
     fprintf (file, "    head [shape = invhouse, label = \"head = %zd\", style = \"filled\", fillcolor = \"goldenrod1\"];\n", List->Array_Prev[0]);
     fprintf (file, "    tail [shape = invhouse, label = \"tail = %zu\", style = \"filled\", fillcolor = \"pink2\"];\n", List->Array_Next[0]);
-    fprintf (file, "    free [shape = invhouse, label = \"first free = %zu\", style = \"filled\", fillcolor = \"green\"];\n", List->Free);
+    if (List->Free != 0)
+    {
+        fprintf (file, "    free [shape = invhouse, label = \"first free = %zu\", style = \"filled\", fillcolor = \"green\"];\n", List->Free);
+    }
+    else
+    {
+        fprintf (file, "    free [shape = Mrecord, label = \"not free\", style = \"filled\", fillcolor = \"orange\"];\n");
+    }
     fprintf (file, "\n");
 
     fprintf (file, "    {rank = same; head; %zd};\n", List->Array_Prev[0]);
@@ -553,11 +573,16 @@ int Dump_For_Html (const list_k* const List, FILE* const file, const char* const
 }
 
 
-int List_Insert_On (const int Value, const int Index, list_k* const List, FILE* file_html)
+int List_Insert_After (const int Value, const int Index, list_k* const List, FILE* file_html)
 {
-    if (Index <= 0 || Index >= int (List->Capacity) || List->Array_Prev[Index - 1] == -1)
+    if (List_Reallocation (List) != 0)
     {
-        printf ("Wrong insert (%d)", Index);
+        return There_Are_Errors;
+    }
+
+    if (Index < 0 || Index >= int (List->Capacity) - 1 || List->Array_Prev[Index] == -1)
+    {
+        printf ("Wrong insert_after (%d)\n", Index);
         return There_Are_Errors;
     }
 
@@ -567,13 +592,95 @@ int List_Insert_On (const int Value, const int Index, list_k* const List, FILE* 
     List->Array_Value[Insert_Position] = Value;
     List->Size++;
 
-    List->Array_Next[Insert_Position] = List->Array_Next[Index - 1];
-    List->Array_Next[Index - 1] = Insert_Position;
+    List->Array_Next[Insert_Position] = List->Array_Next[Index];
+    List->Array_Prev[Insert_Position] = Index;
 
-    List->Array_Prev[Insert_Position] = Index - 1;
-    List->Array_Prev[List->Array_Next[Insert_Position]] = ssize_t (Insert_Position);
+    List->Array_Prev[List->Array_Next[Index]] = ssize_t (Insert_Position);
+    List->Array_Next[Index] = Insert_Position;
 
-    fprintf (file_html, "<u>Dump after function insert on (%d, %d)</u>\n\n", Value, Index);
+    fprintf (file_html, "<u>Dump after function insert after (%d, %d)</u>\n\n", Value, Index);
+    List_Dump_In_Html (List, file_html);
+    return 0;
+}
+
+int List_Insert_Before (const int Value, const int Index, list_k* const List, FILE* file_html)
+{
+    if (List_Reallocation (List) != 0)
+    {
+        return There_Are_Errors;
+    }
+
+    if (Index <= 0 || Index > int (List->Capacity) - 1 || List->Array_Prev[Index] == -1)
+    {
+        printf ("Wrong insert_before (%d)\n", Index);
+        return There_Are_Errors;
+    }
+
+    size_t Insert_Position = List->Free;
+    List->Free = List->Array_Next[List->Free];
+
+    List->Array_Value[Insert_Position] = Value;
+    List->Size++;
+
+    List->Array_Next[Insert_Position] = size_t (Index);
+    List->Array_Prev[Insert_Position] = List->Array_Prev[Index];
+
+    List->Array_Next[List->Array_Prev[Index]] = Insert_Position;
+    List->Array_Prev[Index] = ssize_t (Insert_Position);
+
+    fprintf (file_html, "<u>Dump after function insert before (%d, %d)</u>\n\n", Value, Index);
+    List_Dump_In_Html (List, file_html);
+    return 0;
+}
+
+int List_Push_Front (const int Value, list_k* const List, FILE* file_html)
+{
+    if (List_Reallocation (List) != 0)
+    {
+        return There_Are_Errors;
+    }
+
+    size_t Index = List->Array_Next[0];
+
+    size_t Insert_Position = List->Free;
+    List->Free = List->Array_Next[List->Free];
+
+    List->Array_Value[Insert_Position] = Value;
+    List->Size++;
+
+    List->Array_Next[Insert_Position] = size_t (Index);
+    List->Array_Prev[Insert_Position] = List->Array_Prev[Index];
+
+    List->Array_Next[List->Array_Prev[Index]] = Insert_Position;
+    List->Array_Prev[Index] = ssize_t (Insert_Position);
+
+    fprintf (file_html, "<u>Dump after function push front (%d)</u>\n\n", Value);
+    List_Dump_In_Html (List, file_html);
+    return 0;
+}
+
+int List_Push_Back (const int Value, list_k* const List, FILE* file_html)
+{
+    if (List_Reallocation (List) != 0)
+    {
+        return There_Are_Errors;
+    }
+
+    ssize_t Index = List->Array_Prev[0];
+
+    size_t Insert_Position = List->Free;
+    List->Free = List->Array_Next[List->Free];
+
+    List->Array_Value[Insert_Position] = Value;
+    List->Size++;
+
+    List->Array_Next[Insert_Position] = List->Array_Next[Index];
+    List->Array_Prev[Insert_Position] = Index;
+
+    List->Array_Prev[List->Array_Next[Index]] = ssize_t (Insert_Position);
+    List->Array_Next[Index] = Insert_Position;
+
+    fprintf (file_html, "<u>Dump after function push back (%d)</u>\n\n", Value);
     List_Dump_In_Html (List, file_html);
     return 0;
 }
@@ -598,6 +705,53 @@ int List_Delete (const int Index, list_k* const List, FILE* file_html)
 
     fprintf (file_html, "<u>Dump after function delete (%d)</u>\n\n", Index);
     List_Dump_In_Html (List, file_html);
+    return 0;
+}
+
+int List_Reallocation (list_k* const List)
+{
+    if (List->Size + 1 == List->Capacity)
+    {
+        List->Capacity = List->Capacity * 2;
+
+        List->Array_Value = (int*) realloc (List->Array_Value, List->Capacity * sizeof (int));
+        if (List->Array_Value == NULL)
+        {
+            printf ("Error allocation memory for array value in List_Reallocation\n");
+            return There_Are_Errors;
+        }
+        for (size_t i = List->Size + 1; i < List->Capacity; i++)
+        {
+            List->Array_Value[i] = 0;
+        }
+
+
+        List->Array_Next = (size_t*) realloc (List->Array_Next, List->Capacity * sizeof (size_t*));
+        if (List->Array_Next == NULL)
+        {
+            printf ("Error allocation memory for array next in List_Reallocation!\n");
+            return There_Are_Errors;
+        }
+        for (size_t i = List->Size + 1; i < List->Capacity - 1; i++)
+        {
+            List->Array_Next[i] = i + 1;
+        }
+        List->Array_Next[List->Capacity - 1] = 0;
+
+        List->Array_Prev = (ssize_t*) realloc (List->Array_Prev, List->Capacity * sizeof (ssize_t*));
+        if (List->Array_Prev == NULL)
+        {
+            printf ("Error allocation memory for array prev in List_Reallocation!\n");
+            return There_Are_Errors;
+        }
+        for (size_t i = List->Size + 1; i < List->Capacity; i++)
+        {
+            List->Array_Prev[i] = -1;
+        }
+
+        List->Free = List->Size + 1;
+    }
+
     return 0;
 }
 
