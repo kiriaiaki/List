@@ -19,6 +19,8 @@ int main ()
     List_Insert_On (25, 3, &List, file_html);
     List_Insert_On (5, 1, &List, file_html);
     List_Insert_On (15, 2, &List, file_html);
+    List_Delete (2, &List, file_html);
+    List_Delete (3, &List, file_html);
     List_Insert_On (2007, 1, &List, file_html);
 
 
@@ -176,7 +178,15 @@ int List_Error (const list_k* const List)
 
             else if (List->Array_Next[i] == List->Array_Next[j])
             {
-                return Repeat_Next;
+                if (List->Array_Next[i] == 0 && (List->Array_Prev[i] == - 1 || List->Array_Prev[j] == - 1))
+                {
+                    continue;
+                }
+
+                else
+                {
+                    return Repeat_Next;
+                }
             }
         }
     }
@@ -190,6 +200,11 @@ int List_Error (const list_k* const List)
                 continue;
             }
 
+            else if (List->Array_Prev[i] == -1 && List->Array_Next[i] == 0)
+            {
+                continue;
+            }
+
             else
             {
                 return Bad_Cycle;
@@ -198,7 +213,7 @@ int List_Error (const list_k* const List)
     }
 
     size_t Len_Free_Cycle = 0;
-    for (size_t i = List->Free; List->Array_Next[i] != List->Free; i = List->Array_Next[i])
+    for (size_t i = List->Free; List->Array_Next[i] != 0; i = List->Array_Next[i])
     {
         Len_Free_Cycle++;
     }
@@ -242,7 +257,7 @@ int List_Dump_In_Html (const list_k* const List, FILE* file_html)
 
     fclose (file);
 
-    char Command[54] = "dot ";
+    char Command[64] = "dot ";
     Naming_Command_Dot (Command, Name_File);
 
     system (Command);
@@ -293,7 +308,10 @@ int Dump_For_Graph (const list_k* const List, FILE* const file)
         {
             if (List->Array_Next[i] == List->Array_Next[j])
             {
-                Repeat_Free = List->Array_Next[i];
+                if (List->Array_Next[i] != 0 || (List->Array_Prev[i] != - 1 && List->Array_Prev[j] != - 1))
+                {
+                    Repeat_Free = List->Array_Next[i];
+                }
             }
         }
     }
@@ -556,6 +574,29 @@ int List_Insert_On (const int Value, const int Index, list_k* const List, FILE* 
     List->Array_Prev[List->Array_Next[Insert_Position]] = ssize_t (Insert_Position);
 
     fprintf (file_html, "<u>Dump after function insert on (%d, %d)</u>\n\n", Value, Index);
+    List_Dump_In_Html (List, file_html);
+    return 0;
+}
+
+int List_Delete (const int Index, list_k* const List, FILE* file_html)
+{
+    if (Index <= 0 || Index >= int (List->Capacity) || List->Array_Prev[Index] == -1)
+    {
+        printf ("Wrong delete (%d)", Index);
+        return There_Are_Errors;
+    }
+
+    List->Array_Value[Index] = 0;
+    List->Size--;
+
+    List->Array_Prev[List->Array_Next[Index]] = List->Array_Prev[Index];
+    List->Array_Next[List->Array_Prev[Index]] = List->Array_Next[Index];
+
+    List->Array_Next[Index] = List->Free;
+    List->Free = size_t (Index);
+    List->Array_Prev[Index] = -1;
+
+    fprintf (file_html, "<u>Dump after function delete (%d)</u>\n\n", Index);
     List_Dump_In_Html (List, file_html);
     return 0;
 }
