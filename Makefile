@@ -29,7 +29,7 @@ clean:
 	@rm -rf a.out
 	@rm -rf File_png
 	@rm -rf File_txt
-	@rm -rf Debag.html
+	@rm -rf Log_File.html
 	@rm -rf a.out.dSYM
 	@clear
 	@clear

@@ -82,6 +82,9 @@ int List_Push_Back     (const int Value, list_k* const List);
 int List_Delete        (const int Index, list_k* const List);
 int List_Reallocation  (list_k* const List);
 
+int Insert_After (const int Value, const int Index, list_k* const List);
+int Insert_Before (const int Value, const int Index, list_k* const List);
+
 int Start_Logfile          ();
 int Print_Separator_In_Log (const size_t Len_Separator, FILE* file_html);
 int Reverse_Str            (char* const Str);

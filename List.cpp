@@ -1,13 +1,16 @@
 #include "List.h"
+//#define DEBUG // включает верификаторы и создание logfile
 //#define STOP_PROGRAMME // в случае выявления ошибок в списке программа останавливается
 
 int main ()
 {
+    #ifdef DEBUG
     if (Start_Logfile () == There_Are_Errors)
     {
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
     }
+    #endif // DEBUG
 
     list_k List = {};
     if (List_Ctor (&List) == There_Are_Errors)
@@ -37,14 +40,21 @@ int main ()
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
     }
-    List.Array_Prev[2] = -7; // специальные ошибки
-    List.Array_Next[3] = 700;
+    if (List_Insert_After (25, 2, &List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+    if (List_Delete (5, &List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+
+    // List.Array_Prev[2] = -7; // специальные ошибки
+    // List.Array_Next[3] = 700;
+
     if (List_Insert_After (50, 4, &List) == There_Are_Errors)
-    // // {
-    // //     printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
-    // //     return 0;
-    // // }
-    // if (List_Insert_Before (45, 5, &List) == There_Are_Errors)
     {
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
@@ -64,6 +74,15 @@ int main ()
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
     }
+
+    #ifndef DEBUG
+    if (Start_Logfile () == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+    List_Dump (&List, "After all function");
+    #endif // DEBUG
 
     List_Dtor (&List);
     return 0;
@@ -108,11 +127,13 @@ int List_Ctor  (list_k* const List)
 
     List->Free = 1;
 
+    #ifdef DEBUG
     if (List_Dump (List, "List_Ctor (List)") == There_Are_Errors)
     {
         printf ("Error in function List_Ctor (List)\n");
         return There_Are_Errors;
     }
+    #endif // DEBUG
 
     return 0;
 }
@@ -620,7 +641,7 @@ int Dump_For_Html      (const list_k* const List, const char* const Name_File_Gr
     fprintf (file, "<img src = \"%s\">\n", Name_File_Graph);
     fprintf (file, "\n");
 
-    Print_Separator_In_Log (300, file);
+    Print_Separator_In_Log (350, file);
     fclose (file);
 
     #ifdef STOP_PROGRAMME
@@ -636,14 +657,16 @@ int List_Insert_After  (const int Value, const int Index, list_k* const List)
     char Name_Func[52];
     snprintf (Name_Func, sizeof (Name_Func), "List_Insert_After (%d, %d, List)", Value, Index);
 
-    #ifdef STOP_PROGRAMME
+    #ifdef DEBUG
     if (List_Error (List) != Not_Error_List)
     {
         List_Dump (List, Name_Func);
         printf ("Error start function %s\n", Name_Func);
+        #ifdef STOP_PROGRAMME
         return There_Are_Errors;
+        #endif // STOP_PROGRAMME
     }
-    #endif // STOP_PROGRAMME
+    #endif // DEBUG
 
     if (List_Reallocation (List) != 0)
     {
@@ -656,23 +679,15 @@ int List_Insert_After  (const int Value, const int Index, list_k* const List)
         return There_Are_Errors;
     }
 
-    size_t Insert_Position = List->Free;
-    List->Free = List->Array_Next[List->Free];
+    Insert_After (Value, Index, List);
 
-    List->Array_Value[Insert_Position] = Value;
-    List->Size++;
-
-    List->Array_Next[Insert_Position] = List->Array_Next[Index];
-    List->Array_Prev[Insert_Position] = Index;
-
-    List->Array_Prev[List->Array_Next[Index]] = ssize_t (Insert_Position);
-    List->Array_Next[Index] = Insert_Position;
-
+    #ifdef DEBUG
     if (List_Dump (List, Name_Func) == There_Are_Errors)
     {
         printf ("Error in function %s\n", Name_Func);
         return There_Are_Errors;
     }
+    #endif // DEBUG
 
     return 0;
 }
@@ -682,14 +697,16 @@ int List_Insert_Before (const int Value, const int Index, list_k* const List)
     char Name_Func[52];
     snprintf (Name_Func, sizeof (Name_Func), "List_Insert_Before (%d, %d, List)", Value, Index);
 
-    #ifdef STOP_PROGRAMME
+    #ifdef DEBUG
     if (List_Error (List) != Not_Error_List)
     {
         List_Dump (List, Name_Func);
         printf ("Error start function %s\n", Name_Func);
+        #ifdef STOP_PROGRAMME
         return There_Are_Errors;
+        #endif // STOP_PROGRAMME
     }
-    #endif // STOP_PROGRAMME
+    #endif // DEBUG
 
     if (List_Reallocation (List) != 0)
     {
@@ -702,23 +719,15 @@ int List_Insert_Before (const int Value, const int Index, list_k* const List)
         return There_Are_Errors;
     }
 
-    size_t Insert_Position = List->Free;
-    List->Free = List->Array_Next[List->Free];
+    Insert_Before (Value, Index, List);
 
-    List->Array_Value[Insert_Position] = Value;
-    List->Size++;
-
-    List->Array_Next[Insert_Position] = size_t (Index);
-    List->Array_Prev[Insert_Position] = List->Array_Prev[Index];
-
-    List->Array_Next[List->Array_Prev[Index]] = Insert_Position;
-    List->Array_Prev[Index] = ssize_t (Insert_Position);
-
+    #ifdef DEBUG
     if (List_Dump (List, Name_Func) == There_Are_Errors)
     {
         printf ("Error in function %s\n", Name_Func);
         return There_Are_Errors;
     }
+    #endif // DEBUG
 
     return 0;
 }
@@ -728,39 +737,33 @@ int List_Push_Front    (const int Value, list_k* const List)
     char Name_Func[52];
     snprintf (Name_Func, sizeof (Name_Func), "List_Push_Front (%d, List)", Value);
 
-    #ifdef STOP_PROGRAMME
+    #ifdef DEBUG
     if (List_Error (List) != Not_Error_List)
     {
         List_Dump (List, Name_Func);
         printf ("Error start function %s\n", Name_Func);
+        #ifdef STOP_PROGRAMME
         return There_Are_Errors;
+        #endif // STOP_PROGRAMME
     }
-    #endif // STOP_PROGRAMME
+    #endif // DEBUG
 
     if (List_Reallocation (List) != 0)
     {
         return There_Are_Errors;
     }
 
-    size_t Index = List->Array_Next[0];
+    int Index = int (List->Array_Next[0]);
 
-    size_t Insert_Position = List->Free;
-    List->Free = List->Array_Next[List->Free];
+    Insert_Before (Value, Index, List);
 
-    List->Array_Value[Insert_Position] = Value;
-    List->Size++;
-
-    List->Array_Next[Insert_Position] = size_t (Index);
-    List->Array_Prev[Insert_Position] = List->Array_Prev[Index];
-
-    List->Array_Next[List->Array_Prev[Index]] = Insert_Position;
-    List->Array_Prev[Index] = ssize_t (Insert_Position);
-
+    #ifdef DEBUG
     if (List_Dump (List, Name_Func) == There_Are_Errors)
     {
         printf ("Error in function %s\n", Name_Func);
         return There_Are_Errors;
     }
+    #endif // DEBUG
 
     return 0;
 }
@@ -770,39 +773,33 @@ int List_Push_Back     (const int Value, list_k* const List)
     char Name_Func[52];
     snprintf (Name_Func, sizeof (Name_Func), "List_Push_Back (%d, List)", Value);
 
-    #ifdef STOP_PROGRAMME
+    #ifdef DEBUG
     if (List_Error (List) != Not_Error_List)
     {
         List_Dump (List, Name_Func);
         printf ("Error start function %s\n", Name_Func);
+        #ifdef STOP_PROGRAMME
         return There_Are_Errors;
+        #endif // STOP_PROGRAMME
     }
-    #endif // STOP_PROGRAMME
+    #endif // DEBUG
 
     if (List_Reallocation (List) != 0)
     {
         return There_Are_Errors;
     }
 
-    ssize_t Index = List->Array_Prev[0];
+    int Index = int (List->Array_Prev[0]);
 
-    size_t Insert_Position = List->Free;
-    List->Free = List->Array_Next[List->Free];
+    Insert_After (Value, Index, List);
 
-    List->Array_Value[Insert_Position] = Value;
-    List->Size++;
-
-    List->Array_Next[Insert_Position] = List->Array_Next[Index];
-    List->Array_Prev[Insert_Position] = Index;
-
-    List->Array_Prev[List->Array_Next[Index]] = ssize_t (Insert_Position);
-    List->Array_Next[Index] = Insert_Position;
-
+    #ifdef DEBUG
     if (List_Dump (List, Name_Func) == There_Are_Errors)
     {
         printf ("Error in function %s\n", Name_Func);
         return There_Are_Errors;
     }
+    #endif // DEBUG
 
     return 0;
 }
@@ -812,14 +809,16 @@ int List_Delete        (const int Index, list_k* const List)
     char Name_Func[52];
     snprintf (Name_Func, sizeof (Name_Func), "List_Delete (%d, List)", Index);
 
-    #ifdef STOP_PROGRAMME
+    #ifdef DEBUG
     if (List_Error (List) != Not_Error_List)
     {
         List_Dump (List, Name_Func);
         printf ("Error start function %s\n", Name_Func);
+        #ifdef STOP_PROGRAMME
         return There_Are_Errors;
+        #endif // STOP_PROGRAMME
     }
-    #endif // STOP_PROGRAMME
+    #endif // DEBUG
 
     if (Index <= 0 || Index >= int (List->Capacity) || List->Array_Prev[Index] == -1)
     {
@@ -837,11 +836,13 @@ int List_Delete        (const int Index, list_k* const List)
     List->Free = size_t (Index);
     List->Array_Prev[Index] = -1;
 
+    #ifdef DEBUG
     if (List_Dump (List, Name_Func) == There_Are_Errors)
     {
         printf ("Error in function %s\n", Name_Func);
         return There_Are_Errors;
     }
+    #endif // DEBUG
 
     return 0;
 }
@@ -894,6 +895,41 @@ int List_Reallocation  (list_k* const List)
 }
 
 
+int Insert_After  (const int Value, const int Index, list_k* const List)
+{
+    size_t Insert_Position = List->Free;
+    List->Free = List->Array_Next[List->Free];
+
+    List->Array_Value[Insert_Position] = Value;
+    List->Size++;
+
+    List->Array_Next[Insert_Position] = List->Array_Next[Index];
+    List->Array_Prev[Insert_Position] = Index;
+
+    List->Array_Prev[List->Array_Next[Index]] = ssize_t (Insert_Position);
+    List->Array_Next[Index] = Insert_Position;
+
+    return 0;
+}
+
+int Insert_Before (const int Value, const int Index, list_k* const List)
+{
+    size_t Insert_Position = List->Free;
+    List->Free = List->Array_Next[List->Free];
+
+    List->Array_Value[Insert_Position] = Value;
+    List->Size++;
+
+    List->Array_Next[Insert_Position] = size_t (Index);
+    List->Array_Prev[Insert_Position] = List->Array_Prev[Index];
+
+    List->Array_Next[List->Array_Prev[Index]] = Insert_Position;
+    List->Array_Prev[Index] = ssize_t (Insert_Position);
+
+    return 0;
+}
+
+
 int Start_Logfile          ()
 {
     FILE* file_html = fopen (Name_Log, "w");
@@ -905,7 +941,7 @@ int Start_Logfile          ()
 
     fprintf (file_html, "<pre>\n\n");
 
-    Print_Separator_In_Log (300, file_html);
+    Print_Separator_In_Log (350, file_html);
 
     fclose (file_html);
 

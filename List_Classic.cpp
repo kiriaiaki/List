@@ -1,13 +1,16 @@
 #include "List_Classic.h"
+//#define DEBUG // включает верификаторы и создание logfile
 //#define STOP_PROGRAMME // в случае выявления ошибок в списке программа останавливается
 
 int main ()
 {
+    #ifdef DEBUG
     if (Start_Logfile () == There_Are_Errors)
     {
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
     }
+    #endif // DEBUG
 
     list_k List = {};
     if (List_Ctor (&List) == There_Are_Errors)
@@ -17,53 +20,69 @@ int main ()
     }
 
 
-    // if (List_Insert_After (10, 0, &List) == There_Are_Errors)
-    // {
-    //     printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
-    //     return 0;
-    // }
-    // if (List_Insert_After (20, 1, &List) == There_Are_Errors)
-    // {
-    //     printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
-    //     return 0;
-    // }
-    // if (List_Insert_After (30, 2, &List) == There_Are_Errors)
-    // {
-    //     printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
-    //     return 0;
-    // }
-    // if (List_Insert_After (40, 3, &List) == There_Are_Errors)
-    // {
-    //     printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
-    //     return 0;
-    // }
-    // List.Array_Prev[2] = -7; // специальные ошибки
-    // List.Array_Next[3] = 700;
-    // if (List_Insert_After (50, 4, &List) == There_Are_Errors)
-    // {
-    //     printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
-    //     return 0;
-    // }
-    // if (List_Insert_Before (45, 5, &List) == There_Are_Errors)
-    // {
-    //     printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
-    //     return 0;
-    // }
-    // if (List_Push_Front (5, &List) == There_Are_Errors)
-    // {
-    //     printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
-    //     return 0;
-    // }
-    // if (List_Push_Back (55, &List) == There_Are_Errors)
-    // {
-    //     printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
-    //     return 0;
-    // }
-    // if (List_Delete (7, &List) == There_Are_Errors)
-    // {
-    //     printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
-    //     return 0;
-    // }
+    if (List_Insert_After (10, 0, &List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+    if (List_Insert_After (20, 1, &List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+    if (List_Insert_After (30, 2, &List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+    if (List_Insert_After (40, 3, &List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+    if (List_Insert_After (25, 2, &List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+    if (List_Delete (5, &List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+
+    // List.Array[2].Prev = List.Array - 100; // специальные ошибки
+    // List.Array[3].Next = &List.Array[List.Capacity - 1] + 191;
+
+    if (List_Insert_After (50, 4, &List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+    if (List_Push_Front (5, &List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+    if (List_Push_Back (55, &List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+    if (List_Delete (7, &List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+
+    #ifndef DEBUG
+    if (Start_Logfile () == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+    List_Dump (&List, "After all function");
+    #endif // DEBUG
 
     List_Dtor (&List);
     return 0;
@@ -99,11 +118,13 @@ int List_Ctor  (list_k* const List)
 
     List->Free = &List->Array[1];
 
+    #ifdef DEBUG
     if (List_Dump (List, "List_Ctor (List)") == There_Are_Errors)
     {
         printf ("Error in function List_Ctor (List)\n");
         return There_Are_Errors;
     }
+    #endif // DEBUG
 
     return 0;
 }
@@ -379,7 +400,7 @@ int Dump_For_Graph     (const list_k* const List, FILE* const file_graph)
 
     fprintf (file_graph, "    head [shape = invhouse, label = \"head = %p\", style = \"filled\", fillcolor = \"goldenrod1\"];\n", List->Array[0].Prev);
     fprintf (file_graph, "    tail [shape = invhouse, label = \"tail = %p\", style = \"filled\", fillcolor = \"pink2\"];\n", List->Array[0].Next);
-    if (List->Free != NULL)
+    if (List->Free != List->Array)
     {
         fprintf (file_graph, "    free [shape = invhouse, label = \"first free = %p\", style = \"filled\", fillcolor = \"green\"];\n", List->Free);
     }
@@ -493,6 +514,12 @@ int Dump_For_Html      (const list_k* const List, const char* const Name_File_Gr
     }
     fprintf (file, "\n");
 
+    for (size_t i = 0; i < Len_Line; i++)
+    {
+        fprintf (file, "  %14p ", &List->Array[i]);
+    }
+    fprintf (file, "\n");
+
     for (size_t j = 0; j < Len_Line; j++)
     {
         fprintf (file, "+----------------");
@@ -597,7 +624,7 @@ int Dump_For_Html      (const list_k* const List, const char* const Name_File_Gr
     fprintf (file, "<img src = \"%s\">\n", Name_File_Graph);
     fprintf (file, "\n");
 
-    Print_Separator_In_Log (450, file);
+    Print_Separator_In_Log (600, file);
     fclose (file);
 
     #ifdef STOP_PROGRAMME
@@ -607,253 +634,284 @@ int Dump_For_Html      (const list_k* const List, const char* const Name_File_Gr
     return 0;
 }
 
-//
-// int List_Insert_After  (const int Value, const int Index, list_k* const List)
-// {
-//     char Name_Func[52];
-//     snprintf (Name_Func, sizeof (Name_Func), "List_Insert_After (%d, %d, List)", Value, Index);
-//
-//     #ifdef STOP_PROGRAMME
-//     if (List_Error (List) != Not_Error_List)
-//     {
-//         List_Dump (List, Name_Func);
-//         printf ("Error start function %s\n", Name_Func);
-//         return There_Are_Errors;
-//     }
-//     #endif // STOP_PROGRAMME
-//
-//     if (List_Reallocation (List) != 0)
-//     {
-//         return There_Are_Errors;
-//     }
-//
-//     if (Index < 0 || Index >= int (List->Capacity) - 1 || List->Array_Prev[Index] == -1)
-//     {
-//         printf ("Impossible %s\n", Name_Func);
-//         return There_Are_Errors;
-//     }
-//
-//     size_t Insert_Position = List->Free;
-//     List->Free = List->Array_Next[List->Free];
-//
-//     List->Array_Value[Insert_Position] = Value;
-//     List->Size++;
-//
-//     List->Array_Next[Insert_Position] = List->Array_Next[Index];
-//     List->Array_Prev[Insert_Position] = Index;
-//
-//     List->Array_Prev[List->Array_Next[Index]] = ssize_t (Insert_Position);
-//     List->Array_Next[Index] = Insert_Position;
-//
-//     if (List_Dump (List, Name_Func) == There_Are_Errors)
-//     {
-//         printf ("Error in function %s\n", Name_Func);
-//         return There_Are_Errors;
-//     }
-//
-//     return 0;
-// }
 
-// int List_Insert_Before (const int Value, const int Index, list_k* const List)
-// {
-//     char Name_Func[52];
-//     snprintf (Name_Func, sizeof (Name_Func), "List_Insert_Before (%d, %d, List)", Value, Index);
-//
-//     #ifdef STOP_PROGRAMME
-//     if (List_Error (List) != Not_Error_List)
-//     {
-//         List_Dump (List, Name_Func);
-//         printf ("Error start function %s\n", Name_Func);
-//         return There_Are_Errors;
-//     }
-//     #endif // STOP_PROGRAMME
-//
-//     if (List_Reallocation (List) != 0)
-//     {
-//         return There_Are_Errors;
-//     }
-//
-//     if (Index <= 0 || Index > int (List->Capacity) - 1 || List->Array_Prev[Index] == -1)
-//     {
-//         printf ("Impossible %s\n", Name_Func);
-//         return There_Are_Errors;
-//     }
-//
-//     size_t Insert_Position = List->Free;
-//     List->Free = List->Array_Next[List->Free];
-//
-//     List->Array_Value[Insert_Position] = Value;
-//     List->Size++;
-//
-//     List->Array_Next[Insert_Position] = size_t (Index);
-//     List->Array_Prev[Insert_Position] = List->Array_Prev[Index];
-//
-//     List->Array_Next[List->Array_Prev[Index]] = Insert_Position;
-//     List->Array_Prev[Index] = ssize_t (Insert_Position);
-//
-//     if (List_Dump (List, Name_Func) == There_Are_Errors)
-//     {
-//         printf ("Error in function %s\n", Name_Func);
-//         return There_Are_Errors;
-//     }
-//
-//     return 0;
-// }
-//
-// int List_Push_Front    (const int Value, list_k* const List)
-// {
-//     char Name_Func[52];
-//     snprintf (Name_Func, sizeof (Name_Func), "List_Push_Front (%d, List)", Value);
-//
-//     #ifdef STOP_PROGRAMME
-//     if (List_Error (List) != Not_Error_List)
-//     {
-//         List_Dump (List, Name_Func);
-//         printf ("Error start function %s\n", Name_Func);
-//         return There_Are_Errors;
-//     }
-//     #endif // STOP_PROGRAMME
-//
-//     if (List_Reallocation (List) != 0)
-//     {
-//         return There_Are_Errors;
-//     }
-//
-//     size_t Index = List->Array_Next[0];
-//
-//     size_t Insert_Position = List->Free;
-//     List->Free = List->Array_Next[List->Free];
-//
-//     List->Array_Value[Insert_Position] = Value;
-//     List->Size++;
-//
-//     List->Array_Next[Insert_Position] = size_t (Index);
-//     List->Array_Prev[Insert_Position] = List->Array_Prev[Index];
-//
-//     List->Array_Next[List->Array_Prev[Index]] = Insert_Position;
-//     List->Array_Prev[Index] = ssize_t (Insert_Position);
-//
-//     if (List_Dump (List, Name_Func) == There_Are_Errors)
-//     {
-//         printf ("Error in function %s\n", Name_Func);
-//         return There_Are_Errors;
-//     }
-//
-//     return 0;
-// }
-//
-// int List_Push_Back     (const int Value, list_k* const List)
-// {
-//     char Name_Func[52];
-//     snprintf (Name_Func, sizeof (Name_Func), "List_Push_Back (%d, List)", Value);
-//
-//     #ifdef STOP_PROGRAMME
-//     if (List_Error (List) != Not_Error_List)
-//     {
-//         List_Dump (List, Name_Func);
-//         printf ("Error start function %s\n", Name_Func);
-//         return There_Are_Errors;
-//     }
-//     #endif // STOP_PROGRAMME
-//
-//     if (List_Reallocation (List) != 0)
-//     {
-//         return There_Are_Errors;
-//     }
-//
-//     ssize_t Index = List->Array_Prev[0];
-//
-//     size_t Insert_Position = List->Free;
-//     List->Free = List->Array_Next[List->Free];
-//
-//     List->Array_Value[Insert_Position] = Value;
-//     List->Size++;
-//
-//     List->Array_Next[Insert_Position] = List->Array_Next[Index];
-//     List->Array_Prev[Insert_Position] = Index;
-//
-//     List->Array_Prev[List->Array_Next[Index]] = ssize_t (Insert_Position);
-//     List->Array_Next[Index] = Insert_Position;
-//
-//     if (List_Dump (List, Name_Func) == There_Are_Errors)
-//     {
-//         printf ("Error in function %s\n", Name_Func);
-//         return There_Are_Errors;
-//     }
-//
-//     return 0;
-// }
-//
-// int List_Delete        (const int Index, list_k* const List)
-// {
-//     char Name_Func[52];
-//     snprintf (Name_Func, sizeof (Name_Func), "List_Delete (%d, List)", Index);
-//
-//     #ifdef STOP_PROGRAMME
-//     if (List_Error (List) != Not_Error_List)
-//     {
-//         List_Dump (List, Name_Func);
-//         printf ("Error start function %s\n", Name_Func);
-//         return There_Are_Errors;
-//     }
-//     #endif // STOP_PROGRAMME
-//
-//     if (Index <= 0 || Index >= int (List->Capacity) || List->Array_Prev[Index] == -1)
-//     {
-//         printf ("Impossible %s\n", Name_Func);
-//         return There_Are_Errors;
-//     }
-//
-//     List->Array_Value[Index] = 0;
-//     List->Size--;
-//
-//     List->Array_Prev[List->Array_Next[Index]] = List->Array_Prev[Index];
-//     List->Array_Next[List->Array_Prev[Index]] = List->Array_Next[Index];
-//
-//     List->Array_Next[Index] = List->Free;
-//     List->Free = size_t (Index);
-//     List->Array_Prev[Index] = -1;
-//
-//     if (List_Dump (List, Name_Func) == There_Are_Errors)
-//     {
-//         printf ("Error in function %s\n", Name_Func);
-//         return There_Are_Errors;
-//     }
-//
-//     return 0;
-// }
+int List_Insert_After  (const int Value, const int Index, list_k* const List)
+{
+    char Name_Func[52];
+    snprintf (Name_Func, sizeof (Name_Func), "List_Insert_After (%d, %d, List)", Value, Index);
+
+    #ifdef DEBUG
+    if (List_Error (List) != Not_Error_List)
+    {
+        List_Dump (List, Name_Func);
+        printf ("Error start function %s\n", Name_Func);
+        #ifdef STOP_PROGRAMME
+        return There_Are_Errors;
+        #endif // STOP_PROGRAMME
+    }
+    #endif // DEBUG
+
+    if (List_Reallocation (List) != 0)
+    {
+        return There_Are_Errors;
+    }
+
+    if (Index < 0 || Index >= int (List->Capacity) - 1 || List->Array[Index].Prev == NULL)
+    {
+        printf ("Impossible %s\n", Name_Func);
+        return There_Are_Errors;
+    }
+
+    Insert_After (Value, Index, List);
+
+    #ifdef DEBUG
+    if (List_Dump (List, Name_Func) == There_Are_Errors)
+    {
+        printf ("Error in function %s\n", Name_Func);
+        return There_Are_Errors;
+    }
+    #endif // DEBUG
+
+    return 0;
+}
+
+int List_Insert_Before (const int Value, const int Index, list_k* const List)
+{
+    char Name_Func[52];
+    snprintf (Name_Func, sizeof (Name_Func), "List_Insert_Before (%d, %d, List)", Value, Index);
+
+    #ifdef DEBUG
+    if (List_Error (List) != Not_Error_List)
+    {
+        List_Dump (List, Name_Func);
+        printf ("Error start function %s\n", Name_Func);
+        #ifdef STOP_PROGRAMME
+        return There_Are_Errors;
+        #endif // STOP_PROGRAMME
+    }
+    #endif // DEBUG
+
+    if (List_Reallocation (List) != 0)
+    {
+        return There_Are_Errors;
+    }
+
+    if (Index <= 0 || Index > int (List->Capacity) - 1 || List->Array[Index].Prev == NULL)
+    {
+        printf ("Impossible %s\n", Name_Func);
+        return There_Are_Errors;
+    }
+
+    Insert_Before (Value, Index, List);
+
+    #ifdef DEBUG
+    if (List_Dump (List, Name_Func) == There_Are_Errors)
+    {
+        printf ("Error in function %s\n", Name_Func);
+        return There_Are_Errors;
+    }
+    #endif // DEBUG
+
+    return 0;
+}
+
+int List_Push_Front    (const int Value, list_k* const List)
+{
+    char Name_Func[52];
+    snprintf (Name_Func, sizeof (Name_Func), "List_Push_Front (%d, List)", Value);
+
+    #ifdef DEBUG
+    if (List_Error (List) != Not_Error_List)
+    {
+        List_Dump (List, Name_Func);
+        printf ("Error start function %s\n", Name_Func);
+        #ifdef STOP_PROGRAMME
+        return There_Are_Errors;
+        #endif // STOP_PROGRAMME
+    }
+    #endif // DEBUG
+
+    if (List_Reallocation (List) != 0)
+    {
+        return There_Are_Errors;
+    }
+
+    int Index = int (List->Array[0].Next - List->Array);
+
+    Insert_Before (Value, Index, List);
+
+    #ifdef DEBUG
+    if (List_Dump (List, Name_Func) == There_Are_Errors)
+    {
+        printf ("Error in function %s\n", Name_Func);
+        return There_Are_Errors;
+    }
+    #endif // DEBUG
+
+    return 0;
+}
+
+int List_Push_Back     (const int Value, list_k* const List)
+{
+    char Name_Func[52];
+    snprintf (Name_Func, sizeof (Name_Func), "List_Push_Back (%d, List)", Value);
+
+    #ifdef DEBUG
+    if (List_Error (List) != Not_Error_List)
+    {
+        List_Dump (List, Name_Func);
+        printf ("Error start function %s\n", Name_Func);
+        #ifdef STOP_PROGRAMME
+        return There_Are_Errors;
+        #endif // STOP_PROGRAMME
+    }
+    #endif // DEBUG
+
+    if (List_Reallocation (List) != 0)
+    {
+        return There_Are_Errors;
+    }
+
+    int Index = int (List->Array[0].Prev - List->Array);
+
+    Insert_After (Value, Index, List);
+
+    #ifdef DEBUG
+    if (List_Dump (List, Name_Func) == There_Are_Errors)
+    {
+        printf ("Error in function %s\n", Name_Func);
+        return There_Are_Errors;
+    }
+    #endif // DEBUG
+
+    return 0;
+}
+
+int List_Delete        (const int Index, list_k* const List)
+{
+    char Name_Func[52];
+    snprintf (Name_Func, sizeof (Name_Func), "List_Delete (%d, List)", Index);
+
+    #ifdef DEBUG
+    if (List_Error (List) != Not_Error_List)
+    {
+        List_Dump (List, Name_Func);
+        printf ("Error start function %s\n", Name_Func);
+        #ifdef STOP_PROGRAMME
+        return There_Are_Errors;
+        #endif // STOP_PROGRAMME
+    }
+    #endif // DEBUG
+
+    if (Index <= 0 || Index >= int (List->Capacity) || List->Array[Index].Prev == NULL)
+    {
+        printf ("Impossible %s\n", Name_Func);
+        return There_Are_Errors;
+    }
+
+    List->Array[Index].Value = 0;
+    List->Size--;
+
+    List->Array[Index].Next->Prev = List->Array[Index].Prev;
+    List->Array[Index].Prev->Next = List->Array[Index].Next;
+
+    List->Array[Index].Next = List->Free;
+    List->Free = &List->Array[Index];
+    List->Array[Index].Prev = NULL;
+
+    #ifdef DEBUG
+    if (List_Dump (List, Name_Func) == There_Are_Errors)
+    {
+        printf ("Error in function %s\n", Name_Func);
+        return There_Are_Errors;
+    }
+    #endif // DEBUG
+
+    return 0;
+}
 
 int List_Reallocation  (list_k* const List)
 {
     if (List->Size + 1 == List->Capacity)
     {
-        List->Capacity = List->Capacity * 2;
-
-        List->Array = (node_k*) realloc (List->Array, List->Capacity * sizeof (node_k));
-        if (List->Array == NULL)
+        size_t New_Capacity = List->Capacity * 2;
+        node_k* Old_Array = List->Array;
+        node_k* New_Array = (node_k*) calloc (New_Capacity, sizeof (node_k));
+        if (New_Array == NULL)
         {
             printf ("Error allocation memory for array value in List_Reallocation\n");
             return There_Are_Errors;
         }
 
-        for (size_t i = List->Size + 1; i < List->Capacity; i++)
+        for (size_t i = 0; i < List->Capacity; i++)
         {
-            List->Array[i].Value = 0;
+            New_Array[i].Value = Old_Array[i].Value;
+            New_Array[i].Next = &New_Array[Old_Array[i].Next - Old_Array];
+            New_Array[i].Prev = &New_Array[Old_Array[i].Prev - Old_Array];
         }
 
-        for (size_t i = List->Size + 1; i < List->Capacity - 1; i++)
+        for (size_t i = List->Size + 1; i < New_Capacity; i++)
         {
-            List->Array[i].Next = &List->Array[i + 1];
-        }
-        List->Array[List->Capacity - 1].Next = List->Array;
-
-        for (size_t i = List->Size + 1; i < List->Capacity; i++)
-        {
-            List->Array[i].Prev = NULL;
+            New_Array[i].Value = 0;
         }
 
-        List->Free = &List->Array[List->Size + 1];
+        for (size_t i = List->Size + 1; i < New_Capacity - 1; i++)
+        {
+            New_Array[i].Next = &New_Array[i + 1];
+        }
+        New_Array[New_Capacity - 1].Next = New_Array;
+
+        for (size_t i = List->Size + 1; i < New_Capacity; i++)
+        {
+            New_Array[i].Prev = NULL;
+        }
+
+        List->Free = &New_Array[List->Size + 1];
+
+        List->Array = New_Array;
+        List->Capacity = New_Capacity;
+
+        free (Old_Array);
+
+        List_Dump(List, "DEBUG");
     }
+
+    return 0;
+}
+
+
+int Insert_After  (const int Value, const int Index, list_k* const List)
+{
+    node_k* New_Free = List->Free->Next;
+
+    List->Free->Value = Value;
+    List->Size++;
+
+    List->Free->Next = List->Array[Index].Next;
+    List->Free->Prev = &List->Array[Index];
+
+    List->Array[Index].Next->Prev = List->Free;
+    List->Array[Index].Next = List->Free;
+
+    List->Free = New_Free;
+
+    return 0;
+}
+
+int Insert_Before (const int Value, const int Index, list_k* const List)
+{
+    node_k* New_Free = List->Free->Next;
+
+    List->Free->Value = Value;
+    List->Size++;
+
+    List->Free->Next = &List->Array[Index];
+    List->Free->Prev = List->Array[Index].Prev;
+
+    List->Array[Index].Prev->Next = List->Free;
+    List->Array[Index].Prev = List->Free;
+
+    List->Free = New_Free;
 
     return 0;
 }
@@ -870,7 +928,7 @@ int Start_Logfile          ()
 
     fprintf (file_html, "<pre>\n\n");
 
-    Print_Separator_In_Log (450, file_html);
+    Print_Separator_In_Log (600, file_html);
 
     fclose (file_html);
 
