@@ -1,55 +1,75 @@
 #include "List.h"
+//#define STOP_PROGRAMME // в случае выявления ошибок в списке программа останавливается
 
 int main ()
 {
-    FILE* file_html = fopen ("Debag.html", "w");
-    fprintf (file_html, "<pre>\n\n");
-    fprintf (file_html, "+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+\n\n");
-
-    list_k List = {};
-    if (List_Ctor (&List, file_html) == There_Are_Errors)
+    if (Start_Logfile () == There_Are_Errors)
     {
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
     }
 
-    // List_Insert_After (10, 0, &List, file_html);
-    // List_Insert_After (20, 1, &List, file_html);
-    // List_Insert_After (30, 2, &List, file_html);
-    // List_Insert_After (25, 2, &List, file_html);
-    // List_Insert_After (5, 0, &List, file_html);
-    // List_Insert_After (15, 1, &List, file_html);
-    // List_Delete (2, &List, file_html);
-    // List_Delete (3, &List, file_html);
-    // List_Insert_After (2007, 4, &List, file_html);
-    // List_Insert_Before (1111, 3, &List, file_html);
+    list_k List = {};
+    if (List_Ctor (&List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
 
-    List_Insert_After (10, 0, &List, file_html);
-    List_Insert_After (20, 1, &List, file_html);
-    List_Insert_After (30, 2, &List, file_html);
-    List_Insert_After (40, 3, &List, file_html);
-    List.Array_Prev[2] = 77;
+
+    if (List_Insert_After (10, 0, &List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+    if (List_Insert_After (20, 1, &List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+    if (List_Insert_After (30, 2, &List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+    if (List_Insert_After (40, 3, &List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+    List.Array_Prev[2] = -7; // специальные ошибки
     List.Array_Next[3] = 700;
-    List_Insert_After (50, 4, &List, file_html);
+    if (List_Insert_After (50, 4, &List) == There_Are_Errors)
+    // // {
+    // //     printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+    // //     return 0;
+    // // }
+    // if (List_Insert_Before (45, 5, &List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+    if (List_Push_Front (5, &List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+    if (List_Push_Back (55, &List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
+    if (List_Delete (7, &List) == There_Are_Errors)
+    {
+        printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
+        return 0;
+    }
 
-    List_Push_Front   (5, &List, file_html);
-    List_Push_Back    (55, &List, file_html);
-
-
-    // List_Insert_After (60, 5, &List, file_html);
-    // List_Insert_After (70, 6, &List, file_html);
-    // List_Insert_After (80, 7, &List, file_html);
-    // List_Insert_After (90, 8, &List, file_html);
-    // List_Insert_After (100, 9, &List, file_html);
-    // List_Push_Front   (5, &List, file_html);
-    // List_Push_Back    (110, &List, file_html);
-
-    fclose (file_html);
     List_Dtor (&List);
     return 0;
 }
 
-int List_Ctor (list_k* const List, FILE* file_html)
+int List_Ctor  (list_k* const List)
 {
     List->Size = 0;
     List->Capacity = 10;
@@ -88,12 +108,16 @@ int List_Ctor (list_k* const List, FILE* file_html)
 
     List->Free = 1;
 
-    fprintf (file_html, "<u>Dump after function creator</u>\n\n");
-    List_Dump_In_Html (List, file_html);
+    if (List_Dump (List, "List_Ctor (List)") == There_Are_Errors)
+    {
+        printf ("Error in function List_Ctor (List)\n");
+        return There_Are_Errors;
+    }
+
     return 0;
 }
 
-int List_Dtor (list_k* const List)
+int List_Dtor  (list_k* const List)
 {
     List->Size = 0;
     List->Capacity = 0;
@@ -146,12 +170,12 @@ int List_Error (const list_k* const List)
         return Bad_Canary;
     }
 
-    if (List->Free == 0 || List->Free >= List->Capacity)
+    if (List->Free >= List->Capacity)
     {
         return Bad_Free;
     }
 
-    if (List->Array_Prev[0] >= ssize_t (List->Capacity))
+    if (List->Array_Prev[0] >= ssize_t (List->Capacity) || List->Array_Prev[0] < -1)
     {
         return Bad_Head;
     }
@@ -176,7 +200,7 @@ int List_Error (const list_k* const List)
 
     for (size_t i = 0; i < List->Capacity; i++)
     {
-        if (List->Array_Prev[i] >= ssize_t (List->Capacity))
+        if (List->Array_Prev[i] >= ssize_t (List->Capacity) || List->Array_Prev[i] < -1)
         {
             return Impossible_Prev;
         }
@@ -233,13 +257,16 @@ int List_Error (const list_k* const List)
     }
 
     size_t Len_Free_Cycle = 0;
-    for (size_t i = List->Free; List->Array_Next[i] != 0; i = List->Array_Next[i])
+    if (List->Free != 0)
     {
-        Len_Free_Cycle++;
-    }
-    if (Len_Free_Cycle != (List->Capacity - 1) - List->Size - 1)
-    {
-        return Bad_Len_Free_Cycle;
+        for (size_t i = List->Free; List->Array_Next[i] != 0; i = List->Array_Next[i])
+        {
+            Len_Free_Cycle++;
+        }
+        if (Len_Free_Cycle != (List->Capacity - 1) - List->Size - 1)
+        {
+            return Bad_Len_Free_Cycle;
+        }
     }
 
     size_t Len_Next_Cycle = 0;
@@ -266,28 +293,36 @@ int List_Error (const list_k* const List)
 }
 
 
-int List_Dump_In_Html (const list_k* const List, FILE* file_html)
+int List_Dump          (const list_k* const List, const char* const Name_Function)
 {
-    char Name_File[25] = "File_txt/File_";
-    Naming_File (Name_File);
+    char Name_File_Graph[25] = "File_txt/File_";
+    Naming_File (Name_File_Graph);
 
-    FILE* file = fopen (Name_File, "w");
+    FILE* file_graph = fopen (Name_File_Graph, "w");
+    if (file_graph == NULL)
+    {
+        printf ("Error open file for graph\n");
+        return There_Are_Errors;
+    }
 
-    Dump_For_Graph (List, file);
+    Dump_For_Graph (List, file_graph);
 
-    fclose (file);
+    fclose (file_graph);
 
     char Command[64] = "dot ";
-    Naming_Command_Dot (Command, Name_File);
+    Naming_Command_Dot (Command, Name_File_Graph);
 
     system (Command);
 
-    Dump_For_Html (List, file_html, Name_File);
+    if (Dump_For_Html (List, Name_File_Graph, Name_Function) != Not_Error_List)
+    {
+        return There_Are_Errors;
+    }
 
     return 0;
 }
 
-int Naming_File (char* const Name_File)
+int Naming_File        (char* const Name_File)
 {
     static int Counter = 1;
 
@@ -319,7 +354,7 @@ int Naming_Command_Dot (char* const Name_Command, char* const Name_File)
     return 0;
 }
 
-int Dump_For_Graph (const list_k* const List, FILE* const file)
+int Dump_For_Graph     (const list_k* const List, FILE* const file_graph)
 {
     size_t Repeat_Free = 0;
     for (size_t i = 0; i < List->Capacity; i++)
@@ -336,51 +371,51 @@ int Dump_For_Graph (const list_k* const List, FILE* const file)
         }
     }
 
-    fprintf (file, "digraph G\n"
+    fprintf (file_graph, "digraph G\n"
                    "{\n"
                    "    rankdir = LR;\n"
                    "    node[shape = \"doubleoctagon\", style = \"filled\", fillcolor = \"red\"];\n"
                    "    edge[color = \"red\", style = \"bold\"];\n");
-    fprintf (file, "\n");
+    fprintf (file_graph, "\n");
 
-    fprintf (file, "    %d [shape = Mrecord, label = \"index = %d | value = %d | {head = %zd | tail = %zu}\", style = \"filled\", fillcolor = \"lightblue\"];\n", 0, 0, List->Array_Value[0], List->Array_Prev[0], List->Array_Next[0]);
+    fprintf (file_graph, "    %d [shape = Mrecord, label = \"index = %d | value = %d | {head = %zd | tail = %zu}\", style = \"filled\", fillcolor = \"lightblue\"];\n", 0, 0, List->Array_Value[0], List->Array_Prev[0], List->Array_Next[0]);
 
     for (size_t i = 1; i < List->Capacity; i++)
     {
         if (List->Array_Prev[i] == -1)
         {
-            fprintf (file, "    %zu [shape = Mrecord, label = \"index = %zu | value = %d | {prev = %zd | next = %zu}\", style = \"filled\", fillcolor = \"lightgrey\"];\n", i, i, List->Array_Value[i], List->Array_Prev[i], List->Array_Next[i]);
+            fprintf (file_graph, "    %zu [shape = Mrecord, label = \"index = %zu | value = %d | {prev = %zd | next = %zu}\", style = \"filled\", fillcolor = \"lightgrey\"];\n", i, i, List->Array_Value[i], List->Array_Prev[i], List->Array_Next[i]);
         }
 
         else
         {
-            fprintf (file, "    %zu [shape = Mrecord, label = \"index = %zu | value = %d | {prev = %zd | next = %zu}\", style = \"filled\", fillcolor = \"lightblue\"];\n", i, i, List->Array_Value[i], List->Array_Prev[i], List->Array_Next[i]);
+            fprintf (file_graph, "    %zu [shape = Mrecord, label = \"index = %zu | value = %d | {prev = %zd | next = %zu}\", style = \"filled\", fillcolor = \"lightblue\"];\n", i, i, List->Array_Value[i], List->Array_Prev[i], List->Array_Next[i]);
         }
     }
-    fprintf (file, "\n");
+    fprintf (file_graph, "\n");
 
     for (size_t i = 0; i < List->Capacity - 1; i++)
     {
-        fprintf (file, "    %zu->%zu[color = \"white\", weight = 100];\n", i, i + 1);
+        fprintf (file_graph, "    %zu->%zu[style = invis, weight = 500];\n", i, i + 1);
     }
-    fprintf (file, "\n");
+    fprintf (file_graph, "\n");
 
-    fprintf (file, "    head [shape = invhouse, label = \"head = %zd\", style = \"filled\", fillcolor = \"goldenrod1\"];\n", List->Array_Prev[0]);
-    fprintf (file, "    tail [shape = invhouse, label = \"tail = %zu\", style = \"filled\", fillcolor = \"pink2\"];\n", List->Array_Next[0]);
+    fprintf (file_graph, "    head [shape = invhouse, label = \"head = %zd\", style = \"filled\", fillcolor = \"goldenrod1\"];\n", List->Array_Prev[0]);
+    fprintf (file_graph, "    tail [shape = invhouse, label = \"tail = %zu\", style = \"filled\", fillcolor = \"pink2\"];\n", List->Array_Next[0]);
     if (List->Free != 0)
     {
-        fprintf (file, "    free [shape = invhouse, label = \"first free = %zu\", style = \"filled\", fillcolor = \"green\"];\n", List->Free);
+        fprintf (file_graph, "    free [shape = invhouse, label = \"first free = %zu\", style = \"filled\", fillcolor = \"green\"];\n", List->Free);
     }
     else
     {
-        fprintf (file, "    free [shape = Mrecord, label = \"not free\", style = \"filled\", fillcolor = \"orange\"];\n");
+        fprintf (file_graph, "    free [shape = Mrecord, label = \"not free\", style = \"filled\", fillcolor = \"grey\"];\n");
     }
-    fprintf (file, "\n");
+    fprintf (file_graph, "\n");
 
-    fprintf (file, "    {rank = same; head; %zd};\n", List->Array_Prev[0]);
-    fprintf (file, "    {rank = same; tail; %zu};\n", List->Array_Next[0]);
-    fprintf (file, "    {rank = same; free; %zu};\n", List->Free);
-    fprintf (file, "\n");
+    fprintf (file_graph, "    {rank = same; head; %zd};\n", List->Array_Prev[0]);
+    fprintf (file_graph, "    {rank = same; tail; %zu};\n", List->Array_Next[0]);
+    fprintf (file_graph, "    {rank = same; free; %zu};\n", List->Free);
+    fprintf (file_graph, "\n");
 
     for (size_t i = 0; i < List->Capacity ; i++)
     {
@@ -390,12 +425,12 @@ int Dump_For_Graph (const list_k* const List, FILE* const file)
             {
                 if (List->Array_Next[i] != Repeat_Free)
                 {
-                    fprintf (file, "    %zu->%zu[color = \"green\"];\n", i, List->Array_Next[i]);
+                    fprintf (file_graph, "    %zu->%zu[color = \"green\"];\n", i, List->Array_Next[i]);
                 }
 
                 else
                 {
-                    fprintf (file, "    %zu->%zu[label = \"Повторные стрелки\"];\n", i, List->Array_Next[i]);
+                    fprintf (file_graph, "    %zu->%zu[label = \"Повторные стрелки\"];\n", i, List->Array_Next[i]);
                 }
             }
 
@@ -408,22 +443,22 @@ int Dump_For_Graph (const list_k* const List, FILE* const file)
             {
                 if (List->Array_Prev[List->Array_Next[i]] == ssize_t (i))
                 {
-                    fprintf (file, "    %zu->%zu[color = \"pink2:goldenrod1\", dir = both];\n", i, List->Array_Next[i]);
+                    fprintf (file_graph, "    %zu->%zu[color = \"pink2:goldenrod1\", dir = both];\n", i, List->Array_Next[i]);
                 }
 
                 else
                 {
-                    fprintf (file, "    %zu->%zu[label = \"Неправильный цикл\"];\n", i, List->Array_Next[i]);
+                    fprintf (file_graph, "    %zu->%zu[label = \"Неправильный цикл\"];\n", i, List->Array_Next[i]);
                 }
             }
         }
 
         else
         {
-            fprintf (file, "    %zu->%zu[label = \"Невозможное значение\"];\n", i, List->Array_Next[i]);
+            fprintf (file_graph, "    %zu->%zu[label = \"Невозможное значение Next\"];\n", i, List->Array_Next[i]);
         }
     }
-    fprintf (file, "\n");
+    fprintf (file_graph, "\n");
 
     for (size_t i = 0; i < List->Capacity; i++)
     {
@@ -433,22 +468,31 @@ int Dump_For_Graph (const list_k* const List, FILE* const file)
             {
                 if (List->Array_Next[List->Array_Prev[i]] != i)
                 {
-                    fprintf (file, "    %zu->%zd[label = \"Неправильный цикл\"];\n", i, List->Array_Prev[i]);
+                    fprintf (file_graph, "    %zu->%zd[label = \"Неправильный цикл\"];\n", i, List->Array_Prev[i]);
                 }
             }
             else
             {
-                fprintf (file, "    %zu->%zd[label = \"Невозможное значение\"];\n", i, List->Array_Prev[i]);
+                fprintf (file_graph, "    %zu->%zd[label = \"Невозможное значение Prev\"];\n", i, List->Array_Prev[i]);
             }
         }
     }
 
-    fprintf (file, "}\n");
+    fprintf (file_graph, "}\n");
     return 0;
 }
 
-int Dump_For_Html (const list_k* const List, FILE* const file, const char* const Name_File)
+int Dump_For_Html      (const list_k* const List, const char* const Name_File_Graph, const char* const Name_Function)
 {
+    FILE* file = fopen (Name_Log, "a");
+    if (file == NULL)
+    {
+        printf ("Error open logfile\n");
+        return There_Are_Errors;
+    }
+
+    fprintf (file, "<u>Dump after function</u> %s\n\n", Name_Function);
+
     int Number_Error = List_Error (List);
     if (Number_Error != 0)
     {
@@ -465,11 +509,13 @@ int Dump_For_Html (const list_k* const List, FILE* const file, const char* const
     fprintf (file, "DATA:\n");
     size_t Len = List->Capacity;
     size_t Len_Line = List->Capacity;
+
     for (size_t i = 0; i < Len_Line; i++)
     {
         fprintf (file, "   %2zu  ", i);
     }
     fprintf (file, "\n");
+
     for (size_t j = 0; j < Len_Line; j++)
     {
         fprintf (file, "+------");
@@ -571,17 +617,34 @@ int Dump_For_Html (const list_k* const List, FILE* const file, const char* const
     fprintf (file, "\n");
 
 
-    fprintf (file, "<img src = \"%s\">\n", Name_File);
+    fprintf (file, "<img src = \"%s\">\n", Name_File_Graph);
     fprintf (file, "\n");
 
-    fprintf (file, "+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+\n\n");
+    Print_Separator_In_Log (300, file);
+    fclose (file);
+
+    #ifdef STOP_PROGRAMME
+    return Number_Error;
+    #endif // STOP_PROGRAMME
 
     return 0;
 }
 
 
-int List_Insert_After (const int Value, const int Index, list_k* const List, FILE* file_html)
+int List_Insert_After  (const int Value, const int Index, list_k* const List)
 {
+    char Name_Func[52];
+    snprintf (Name_Func, sizeof (Name_Func), "List_Insert_After (%d, %d, List)", Value, Index);
+
+    #ifdef STOP_PROGRAMME
+    if (List_Error (List) != Not_Error_List)
+    {
+        List_Dump (List, Name_Func);
+        printf ("Error start function %s\n", Name_Func);
+        return There_Are_Errors;
+    }
+    #endif // STOP_PROGRAMME
+
     if (List_Reallocation (List) != 0)
     {
         return There_Are_Errors;
@@ -589,7 +652,7 @@ int List_Insert_After (const int Value, const int Index, list_k* const List, FIL
 
     if (Index < 0 || Index >= int (List->Capacity) - 1 || List->Array_Prev[Index] == -1)
     {
-        printf ("Wrong insert_after (%d)\n", Index);
+        printf ("Impossible %s\n", Name_Func);
         return There_Are_Errors;
     }
 
@@ -605,13 +668,29 @@ int List_Insert_After (const int Value, const int Index, list_k* const List, FIL
     List->Array_Prev[List->Array_Next[Index]] = ssize_t (Insert_Position);
     List->Array_Next[Index] = Insert_Position;
 
-    fprintf (file_html, "<u>Dump after function insert after (%d, %d)</u>\n\n", Value, Index);
-    List_Dump_In_Html (List, file_html);
+    if (List_Dump (List, Name_Func) == There_Are_Errors)
+    {
+        printf ("Error in function %s\n", Name_Func);
+        return There_Are_Errors;
+    }
+
     return 0;
 }
 
-int List_Insert_Before (const int Value, const int Index, list_k* const List, FILE* file_html)
+int List_Insert_Before (const int Value, const int Index, list_k* const List)
 {
+    char Name_Func[52];
+    snprintf (Name_Func, sizeof (Name_Func), "List_Insert_Before (%d, %d, List)", Value, Index);
+
+    #ifdef STOP_PROGRAMME
+    if (List_Error (List) != Not_Error_List)
+    {
+        List_Dump (List, Name_Func);
+        printf ("Error start function %s\n", Name_Func);
+        return There_Are_Errors;
+    }
+    #endif // STOP_PROGRAMME
+
     if (List_Reallocation (List) != 0)
     {
         return There_Are_Errors;
@@ -619,7 +698,7 @@ int List_Insert_Before (const int Value, const int Index, list_k* const List, FI
 
     if (Index <= 0 || Index > int (List->Capacity) - 1 || List->Array_Prev[Index] == -1)
     {
-        printf ("Wrong insert_before (%d)\n", Index);
+        printf ("Impossible %s\n", Name_Func);
         return There_Are_Errors;
     }
 
@@ -635,13 +714,29 @@ int List_Insert_Before (const int Value, const int Index, list_k* const List, FI
     List->Array_Next[List->Array_Prev[Index]] = Insert_Position;
     List->Array_Prev[Index] = ssize_t (Insert_Position);
 
-    fprintf (file_html, "<u>Dump after function insert before (%d, %d)</u>\n\n", Value, Index);
-    List_Dump_In_Html (List, file_html);
+    if (List_Dump (List, Name_Func) == There_Are_Errors)
+    {
+        printf ("Error in function %s\n", Name_Func);
+        return There_Are_Errors;
+    }
+
     return 0;
 }
 
-int List_Push_Front (const int Value, list_k* const List, FILE* file_html)
+int List_Push_Front    (const int Value, list_k* const List)
 {
+    char Name_Func[52];
+    snprintf (Name_Func, sizeof (Name_Func), "List_Push_Front (%d, List)", Value);
+
+    #ifdef STOP_PROGRAMME
+    if (List_Error (List) != Not_Error_List)
+    {
+        List_Dump (List, Name_Func);
+        printf ("Error start function %s\n", Name_Func);
+        return There_Are_Errors;
+    }
+    #endif // STOP_PROGRAMME
+
     if (List_Reallocation (List) != 0)
     {
         return There_Are_Errors;
@@ -661,13 +756,29 @@ int List_Push_Front (const int Value, list_k* const List, FILE* file_html)
     List->Array_Next[List->Array_Prev[Index]] = Insert_Position;
     List->Array_Prev[Index] = ssize_t (Insert_Position);
 
-    fprintf (file_html, "<u>Dump after function push front (%d)</u>\n\n", Value);
-    List_Dump_In_Html (List, file_html);
+    if (List_Dump (List, Name_Func) == There_Are_Errors)
+    {
+        printf ("Error in function %s\n", Name_Func);
+        return There_Are_Errors;
+    }
+
     return 0;
 }
 
-int List_Push_Back (const int Value, list_k* const List, FILE* file_html)
+int List_Push_Back     (const int Value, list_k* const List)
 {
+    char Name_Func[52];
+    snprintf (Name_Func, sizeof (Name_Func), "List_Push_Back (%d, List)", Value);
+
+    #ifdef STOP_PROGRAMME
+    if (List_Error (List) != Not_Error_List)
+    {
+        List_Dump (List, Name_Func);
+        printf ("Error start function %s\n", Name_Func);
+        return There_Are_Errors;
+    }
+    #endif // STOP_PROGRAMME
+
     if (List_Reallocation (List) != 0)
     {
         return There_Are_Errors;
@@ -687,16 +798,32 @@ int List_Push_Back (const int Value, list_k* const List, FILE* file_html)
     List->Array_Prev[List->Array_Next[Index]] = ssize_t (Insert_Position);
     List->Array_Next[Index] = Insert_Position;
 
-    fprintf (file_html, "<u>Dump after function push back (%d)</u>\n\n", Value);
-    List_Dump_In_Html (List, file_html);
+    if (List_Dump (List, Name_Func) == There_Are_Errors)
+    {
+        printf ("Error in function %s\n", Name_Func);
+        return There_Are_Errors;
+    }
+
     return 0;
 }
 
-int List_Delete (const int Index, list_k* const List, FILE* file_html)
+int List_Delete        (const int Index, list_k* const List)
 {
+    char Name_Func[52];
+    snprintf (Name_Func, sizeof (Name_Func), "List_Delete (%d, List)", Index);
+
+    #ifdef STOP_PROGRAMME
+    if (List_Error (List) != Not_Error_List)
+    {
+        List_Dump (List, Name_Func);
+        printf ("Error start function %s\n", Name_Func);
+        return There_Are_Errors;
+    }
+    #endif // STOP_PROGRAMME
+
     if (Index <= 0 || Index >= int (List->Capacity) || List->Array_Prev[Index] == -1)
     {
-        printf ("Wrong delete (%d)", Index);
+        printf ("Impossible %s\n", Name_Func);
         return There_Are_Errors;
     }
 
@@ -710,12 +837,16 @@ int List_Delete (const int Index, list_k* const List, FILE* file_html)
     List->Free = size_t (Index);
     List->Array_Prev[Index] = -1;
 
-    fprintf (file_html, "<u>Dump after function delete (%d)</u>\n\n", Index);
-    List_Dump_In_Html (List, file_html);
+    if (List_Dump (List, Name_Func) == There_Are_Errors)
+    {
+        printf ("Error in function %s\n", Name_Func);
+        return There_Are_Errors;
+    }
+
     return 0;
 }
 
-int List_Reallocation (list_k* const List)
+int List_Reallocation  (list_k* const List)
 {
     if (List->Size + 1 == List->Capacity)
     {
@@ -763,7 +894,36 @@ int List_Reallocation (list_k* const List)
 }
 
 
-int Reverse_Str (char* const Str)
+int Start_Logfile          ()
+{
+    FILE* file_html = fopen (Name_Log, "w");
+    if (file_html == NULL)
+    {
+        printf ("Error open logfile\n");
+        return There_Are_Errors;
+    }
+
+    fprintf (file_html, "<pre>\n\n");
+
+    Print_Separator_In_Log (300, file_html);
+
+    fclose (file_html);
+
+    return 0;
+}
+
+int Print_Separator_In_Log (const size_t Len_Separator, FILE* file_html)
+{
+    for (size_t i = 0; i < Len_Separator / 2; i++)
+    {
+        fprintf (file_html, "+=");
+    }
+    fprintf (file_html, "\n\n");
+
+    return 0;
+}
+
+int Reverse_Str            (char* const Str)
 {
     size_t i = 0;
     size_t j = strlen (Str) - 1;
@@ -780,7 +940,7 @@ int Reverse_Str (char* const Str)
     return 0;
 }
 
-char* itoa_k (int Number, char* const Str)
+char* itoa_k               (int Number, char* const Str)
 {
     size_t i = 0;
 
@@ -810,3 +970,4 @@ char* itoa_k (int Number, char* const Str)
 
     return Str;
 }
+

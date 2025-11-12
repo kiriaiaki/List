@@ -13,10 +13,8 @@ struct list_k
 {
     size_t Capacity;
     size_t Size;
-    int* Array_Value;
-    size_t* Array_Next;
-    ssize_t* Array_Prev;
-    size_t Free;
+    node_k* Array;
+    node_k* Free;
 };
 
 enum Name_List_Error
@@ -69,25 +67,27 @@ const char* Array_Name_List_Error[Quantity_Error] = {
 
 const int There_Are_Errors = -2902;
 const int Canary = 2008;
+const char Name_Log[] = "Log_File.html";
 
-int List_Ctor  (list_k* const List, FILE* file_html);
+int List_Ctor  (list_k* const List);
 int List_Dtor  (list_k* const List);
 int List_Error (const list_k* const List);
 
-int List_Dump_In_Html  (const list_k* const List, FILE* file_html);
+int List_Dump          (const list_k* const List, const char* const Name_Function);
 int Naming_File        (char* const Name_File);
 int Naming_Command_Dot (char* const Name_Command, char* const Name_File);
 int Dump_For_Graph     (const list_k* const List, FILE* const file);
-int Dump_For_Html      (const list_k* const List, FILE* const file, const char* const Name_File);
+int Dump_For_Html      (const list_k* const List, const char* const Name_File, const char* const Name_Function);
 
-int List_Insert_After  (const int Value, const int Index, list_k* const List, FILE* file_html);
-int List_Insert_Before (const int Value, const int Index, list_k* const List, FILE* file_html);
-int List_Push_Front    (const int Value, list_k* const List, FILE* file_html);
-int List_Push_Back     (const int Value, list_k* const List, FILE* file_html);
-int List_Delete        (const int Index, list_k* const List, FILE* file_html);
+int List_Insert_After  (const int Value, const int Index, list_k* const List);
+int List_Insert_Before (const int Value, const int Index, list_k* const List);
+int List_Push_Front    (const int Value, list_k* const List);
+int List_Push_Back     (const int Value, list_k* const List);
+int List_Delete        (const int Index, list_k* const List);
 int List_Reallocation  (list_k* const List);
 
-
-int Reverse_Str (char* const Str);
-char* itoa_k    (int Number, char* const Str);
+int Start_Logfile          ();
+int Print_Separator_In_Log (const size_t Len_Separator, FILE* file_html);
+int Reverse_Str            (char* const Str);
+char* itoa_k               (int Number, char* const Str);
 
