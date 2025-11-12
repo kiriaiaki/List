@@ -120,164 +120,154 @@ int List_Dtor  (list_k* const List)
     return 0;
 }
 
-// int List_Error (const list_k* const List)
-// {
-//     if (List == NULL)
-//     {
-//         return Not_Struct_List;
-//     }
-//
-//     if (List->Capacity < 10)
-//     {
-//         return Bad_Capacity;
-//     }
-//
-//     if (List->Array_Value == NULL)
-//     {
-//         return Not_Array_Data;
-//     }
-//
-//     if (List->Array_Next == NULL)
-//     {
-//         return Not_Array_Next;
-//     }
-//
-//     if (List->Array_Prev == NULL)
-//     {
-//         return Not_Array_Prev;
-//     }
-//
-//     if (List->Size >= List->Capacity)
-//     {
-//         return Bad_Size;
-//     }
-//
-//     if (List->Array_Value[0] != Canary)
-//     {
-//         return Bad_Canary;
-//     }
-//
-//     if (List->Free >= List->Capacity)
-//     {
-//         return Bad_Free;
-//     }
-//
-//     if (List->Array_Prev[0] >= ssize_t (List->Capacity) || List->Array_Prev[0] < -1)
-//     {
-//         return Bad_Head;
-//     }
-//
-//     if (List->Array_Next[0] >= List->Capacity)
-//     {
-//         return Bad_Tail;
-//     }
-//
-//     size_t Counter_Free_Element = 0;
-//     for (size_t i = 0; i < List->Capacity; i++)
-//     {
-//         if (List->Array_Prev[i] == -1)
-//         {
-//             Counter_Free_Element++;
-//         }
-//     }
-//     if (Counter_Free_Element != (List->Capacity - 1) - List->Size)
-//     {
-//         return Bad_Count_Free;
-//     }
-//
-//     for (size_t i = 0; i < List->Capacity; i++)
-//     {
-//         if (List->Array_Prev[i] >= ssize_t (List->Capacity) || List->Array_Prev[i] < -1)
-//         {
-//             return Impossible_Prev;
-//         }
-//
-//         else if (List->Array_Next[i] >= List->Capacity)
-//         {
-//             return Impossible_Next;
-//         }
-//     }
-//
-//     for (size_t i = 0; i < List->Capacity; i++)
-//     {
-//         for (size_t j = i + 1; j < List->Capacity; j++)
-//         {
-//             if (List->Array_Prev[i] == List->Array_Prev[j] && List->Array_Prev[j] != -1)
-//             {
-//                 return Repeat_Prev;
-//             }
-//
-//             else if (List->Array_Next[i] == List->Array_Next[j])
-//             {
-//                 if (List->Array_Next[i] == 0 && (List->Array_Prev[i] == - 1 || List->Array_Prev[j] == - 1))
-//                 {
-//                     continue;
-//                 }
-//
-//                 else
-//                 {
-//                     return Repeat_Next;
-//                 }
-//             }
-//         }
-//     }
-//
-//     for (size_t i = 0; i < List->Capacity; i++)
-//     {
-//         if (ssize_t (i) != List->Array_Prev[List->Array_Next[i]])
-//         {
-//             if (List->Array_Prev[i] == -1 && List->Array_Prev[List->Array_Next[i]] == -1)
-//             {
-//                 continue;
-//             }
-//
-//             else if (List->Array_Prev[i] == -1 && List->Array_Next[i] == 0)
-//             {
-//                 continue;
-//             }
-//
-//             else
-//             {
-//                 return Bad_Cycle;
-//             }
-//         }
-//     }
-//
-//     size_t Len_Free_Cycle = 0;
-//     if (List->Free != 0)
-//     {
-//         for (size_t i = List->Free; List->Array_Next[i] != 0; i = List->Array_Next[i])
-//         {
-//             Len_Free_Cycle++;
-//         }
-//         if (Len_Free_Cycle != (List->Capacity - 1) - List->Size - 1)
-//         {
-//             return Bad_Len_Free_Cycle;
-//         }
-//     }
-//
-//     size_t Len_Next_Cycle = 0;
-//     for (size_t i = 0; List->Array_Next[i] != 0; i = List->Array_Next[i])
-//     {
-//         Len_Next_Cycle++;
-//     }
-//     if (Len_Next_Cycle != List->Size)
-//     {
-//         return Bad_Len_Next_Cycle;
-//     }
-//
-//     size_t Len_Prev_Cycle = 0;
-//     for (ssize_t i = 0; List->Array_Prev[i] != 0; i = List->Array_Prev[i])
-//     {
-//         Len_Prev_Cycle++;
-//     }
-//     if (Len_Prev_Cycle != List->Size)
-//     {
-//         return Bad_Len_Prev_Cycle;
-//     }
-//
-//     return Not_Error_List;
-// }
+int List_Error (const list_k* const List)
+{
+    if (List == NULL)
+    {
+        return Not_Struct_List;
+    }
+
+    if (List->Capacity < 10)
+    {
+        return Bad_Capacity;
+    }
+
+    if (List->Array == NULL)
+    {
+        return Not_Array;
+    }
+
+    if (List->Size >= List->Capacity)
+    {
+        return Bad_Size;
+    }
+
+    if (List->Array[0].Value != Canary)
+    {
+        return Bad_Canary;
+    }
+
+    if (List->Free >= &List->Array[List->Capacity] || List->Free < List->Array)
+    {
+        return Bad_Free;
+    }
+
+    if (List->Array[0].Prev >= &List->Array[List->Capacity] || List->Array[0].Prev < List->Array)
+    {
+        return Bad_Head;
+    }
+
+    if (List->Array[0].Next >= &List->Array[List->Capacity] || List->Array[0].Next < List->Array)
+    {
+        return Bad_Tail;
+    }
+
+    size_t Counter_Free_Element = 0;
+    for (size_t i = 0; i < List->Capacity; i++)
+    {
+        if (List->Array[i].Prev == NULL)
+        {
+            Counter_Free_Element++;
+        }
+    }
+    if (Counter_Free_Element != (List->Capacity - 1) - List->Size)
+    {
+        return Bad_Count_Free;
+    }
+
+    for (size_t i = 1; i < List->Capacity; i++)
+    {
+        if ((List->Array[i].Prev >= &List->Array[List->Capacity] || List->Array[i].Prev < List->Array) && List->Array[i].Prev != NULL)
+        {
+            return Impossible_Prev;
+        }
+
+        else if (List->Array[i].Next >= &List->Array[List->Capacity] || List->Array[i].Next < List->Array)
+        {
+            return Impossible_Next;
+        }
+    }
+
+    for (size_t i = 0; i < List->Capacity; i++)
+    {
+        for (size_t j = i + 1; j < List->Capacity; j++)
+        {
+            if (List->Array[i].Prev == List->Array[j].Prev && List->Array[j].Prev != NULL)
+            {
+                return Repeat_Prev;
+            }
+
+            else if (List->Array[i].Next == List->Array[j].Next)
+            {
+                if (List->Array[i].Next == List->Array && (List->Array[i].Prev == NULL || List->Array[j].Prev == NULL))
+                {
+                    continue;
+                }
+
+                else
+                {
+                    return Repeat_Next;
+                }
+            }
+        }
+    }
+
+    for (size_t i = 0; i < List->Capacity; i++)
+    {
+        if (&List->Array[i] != List->Array[i].Next->Prev)
+        {
+            if (List->Array[i].Prev == NULL && List->Array[i].Next->Prev == NULL)
+            {
+                continue;
+            }
+
+            else if (List->Array[i].Prev == NULL && List->Array[i].Next == List->Array)
+            {
+                continue;
+            }
+
+            else
+            {
+                return Bad_Cycle;
+            }
+        }
+    }
+
+    size_t Len_Free_Cycle = 0;
+    if (List->Free != List->Array)
+    {
+        for (node_k* i = List->Free; i != List->Array; i = &(*i->Next))
+        {
+            Len_Free_Cycle++;
+        }
+        if (Len_Free_Cycle != (List->Capacity - 1) - List->Size)
+        {
+            return Bad_Len_Free_Cycle;
+        }
+    }
+
+    size_t Len_Next_Cycle = 0;
+    for (node_k* i = List->Array; &(*i->Next) != List->Array; i = &(*i->Next))
+    {
+        Len_Next_Cycle++;
+    }
+    if (Len_Next_Cycle != List->Size)
+    {
+        return Bad_Len_Next_Cycle;
+    }
+
+    size_t Len_Prev_Cycle = 0;
+    for (node_k* i = List->Array; &(*i->Prev) != List->Array; i = &(*i->Prev))
+    {
+        Len_Prev_Cycle++;
+    }
+    if (Len_Prev_Cycle != List->Size)
+    {
+        return Bad_Len_Prev_Cycle;
+    }
+
+    return Not_Error_List;
+}
 
 
 int List_Dump          (const list_k* const List, const char* const Name_Function)
@@ -343,16 +333,16 @@ int Naming_Command_Dot (char* const Name_Command, char* const Name_File)
 
 int Dump_For_Graph     (const list_k* const List, FILE* const file_graph)
 {
-    size_t Repeat_Free = 0;
+    node_k* Repeat_Free = 0;
     for (size_t i = 0; i < List->Capacity; i++)
     {
         for (size_t j = i + 1; j < List->Capacity; j++)
         {
-            if (List->Array_Next[i] == List->Array_Next[j])
+            if (List->Array[i].Next == List->Array[j].Next)
             {
-                if (List->Array_Next[i] != 0 || (List->Array_Prev[i] != - 1 && List->Array_Prev[j] != - 1))
+                if (List->Array[i].Next != List->Array || (List->Array[i].Prev != NULL && List->Array[j].Prev != NULL))
                 {
-                    Repeat_Free = List->Array_Next[i];
+                    Repeat_Free = List->Array[i].Next;
                 }
             }
         }
@@ -365,18 +355,18 @@ int Dump_For_Graph     (const list_k* const List, FILE* const file_graph)
                    "    edge[color = \"red\", style = \"bold\"];\n");
     fprintf (file_graph, "\n");
 
-    fprintf (file_graph, "    %d [shape = Mrecord, label = \"index = %d | value = %d | {head = %zd | tail = %zu}\", style = \"filled\", fillcolor = \"lightblue\"];\n", 0, 0, List->Array_Value[0], List->Array_Prev[0], List->Array_Next[0]);
+    fprintf (file_graph, "    %d [shape = Mrecord, label = \"index = %d | value = %d | {head = %p | tail = %p}\", style = \"filled\", fillcolor = \"lightblue\"];\n", 0, 0, List->Array[0].Value, List->Array[0].Prev, List->Array[0].Next);
 
     for (size_t i = 1; i < List->Capacity; i++)
     {
-        if (List->Array_Prev[i] == -1)
+        if (List->Array[i].Prev == NULL)
         {
-            fprintf (file_graph, "    %zu [shape = Mrecord, label = \"index = %zu | value = %d | {prev = %zd | next = %zu}\", style = \"filled\", fillcolor = \"lightgrey\"];\n", i, i, List->Array_Value[i], List->Array_Prev[i], List->Array_Next[i]);
+            fprintf (file_graph, "    %zu [shape = Mrecord, label = \"index = %zu | value = %d | {prev = %p | next = %p}\", style = \"filled\", fillcolor = \"lightgrey\"];\n", i, i, List->Array[i].Value, List->Array[i].Prev, List->Array[i].Next);
         }
 
         else
         {
-            fprintf (file_graph, "    %zu [shape = Mrecord, label = \"index = %zu | value = %d | {prev = %zd | next = %zu}\", style = \"filled\", fillcolor = \"lightblue\"];\n", i, i, List->Array_Value[i], List->Array_Prev[i], List->Array_Next[i]);
+            fprintf (file_graph, "    %zu [shape = Mrecord, label = \"index = %zu | value = %d | {prev = %p | next = %p}\", style = \"filled\", fillcolor = \"lightblue\"];\n", i, i, List->Array[i].Value, List->Array[i].Prev, List->Array[i].Next);
         }
     }
     fprintf (file_graph, "\n");
@@ -387,11 +377,11 @@ int Dump_For_Graph     (const list_k* const List, FILE* const file_graph)
     }
     fprintf (file_graph, "\n");
 
-    fprintf (file_graph, "    head [shape = invhouse, label = \"head = %zd\", style = \"filled\", fillcolor = \"goldenrod1\"];\n", List->Array_Prev[0]);
-    fprintf (file_graph, "    tail [shape = invhouse, label = \"tail = %zu\", style = \"filled\", fillcolor = \"pink2\"];\n", List->Array_Next[0]);
-    if (List->Free != 0)
+    fprintf (file_graph, "    head [shape = invhouse, label = \"head = %p\", style = \"filled\", fillcolor = \"goldenrod1\"];\n", List->Array[0].Prev);
+    fprintf (file_graph, "    tail [shape = invhouse, label = \"tail = %p\", style = \"filled\", fillcolor = \"pink2\"];\n", List->Array[0].Next);
+    if (List->Free != NULL)
     {
-        fprintf (file_graph, "    free [shape = invhouse, label = \"first free = %zu\", style = \"filled\", fillcolor = \"green\"];\n", List->Free);
+        fprintf (file_graph, "    free [shape = invhouse, label = \"first free = %p\", style = \"filled\", fillcolor = \"green\"];\n", List->Free);
     }
     else
     {
@@ -399,68 +389,68 @@ int Dump_For_Graph     (const list_k* const List, FILE* const file_graph)
     }
     fprintf (file_graph, "\n");
 
-    fprintf (file_graph, "    {rank = same; head; %zd};\n", List->Array_Prev[0]);
-    fprintf (file_graph, "    {rank = same; tail; %zu};\n", List->Array_Next[0]);
-    fprintf (file_graph, "    {rank = same; free; %zu};\n", List->Free);
+    fprintf (file_graph, "    {rank = same; head; %d};\n", int (List->Array[0].Prev - List->Array));
+    fprintf (file_graph, "    {rank = same; tail; %d};\n", int (List->Array[0].Next - List->Array));
+    fprintf (file_graph, "    {rank = same; free; %d};\n", int (List->Free - List->Array));
     fprintf (file_graph, "\n");
 
     for (size_t i = 0; i < List->Capacity ; i++)
     {
-        if (List->Array_Next[i] < List->Capacity)
+        if (List->Array[i].Next < &List->Array[List->Capacity] && List->Array[i].Next >= List->Array)
         {
-            if (List->Array_Prev[i] == -1 && List->Array_Prev[List->Array_Next[i]] == -1)
+            if (List->Array[i].Prev == NULL && List->Array[i].Next->Prev == NULL)
             {
-                if (List->Array_Next[i] != Repeat_Free)
+                if (List->Array[i].Next != Repeat_Free)
                 {
-                    fprintf (file_graph, "    %zu->%zu[color = \"green\"];\n", i, List->Array_Next[i]);
+                    fprintf (file_graph, "    %d->%d[color = \"green\"];\n", int (&List->Array[i] - List->Array), int (List->Array[i].Next - List->Array));
                 }
 
                 else
                 {
-                    fprintf (file_graph, "    %zu->%zu[label = \"Повторные стрелки\"];\n", i, List->Array_Next[i]);
+                    fprintf (file_graph, "    %d->%d[label = \"Повторные стрелки\"];\n", int (&List->Array[i] - List->Array), int (List->Array[i].Next - List->Array));
                 }
             }
 
-            else if (List->Array_Prev[i] == -1 && List->Array_Next[i] == 0)
+            else if (List->Array[i].Prev == NULL && List->Array[i].Next == List->Array)
             {
                 continue;
             }
 
             else
             {
-                if (List->Array_Prev[List->Array_Next[i]] == ssize_t (i))
+                if (List->Array[i].Next->Prev == &List->Array[i])
                 {
-                    fprintf (file_graph, "    %zu->%zu[color = \"pink2:goldenrod1\", dir = both];\n", i, List->Array_Next[i]);
+                    fprintf (file_graph, "    %d->%d[color = \"pink2:goldenrod1\", dir = both];\n", int (&List->Array[i] - List->Array), int (List->Array[i].Next - List->Array));
                 }
 
                 else
                 {
-                    fprintf (file_graph, "    %zu->%zu[label = \"Неправильный цикл\"];\n", i, List->Array_Next[i]);
+                    fprintf (file_graph, "    %d->%d[label = \"Неправильный цикл\"];\n", int (&List->Array[i] - List->Array), int (List->Array[i].Next - List->Array));
                 }
             }
         }
 
         else
         {
-            fprintf (file_graph, "    %zu->%zu[label = \"Невозможное значение Next\"];\n", i, List->Array_Next[i]);
+            fprintf (file_graph, "    %d->%d[label = \"Невозможное значение Next\"];\n", int (&List->Array[i] - List->Array), int (List->Array[i].Next - List->Array));
         }
     }
     fprintf (file_graph, "\n");
 
     for (size_t i = 0; i < List->Capacity; i++)
     {
-        if (List->Array_Prev[i] != -1)
+        if (List->Array[i].Prev != NULL)
         {
-            if (size_t (List->Array_Prev[i]) < List->Capacity)
+            if (List->Array[i].Prev < &List->Array[List->Capacity] && List->Array[i].Prev >= List->Array)
             {
-                if (List->Array_Next[List->Array_Prev[i]] != i)
+                if (List->Array[i].Prev->Next != &List->Array[i])
                 {
-                    fprintf (file_graph, "    %zu->%zd[label = \"Неправильный цикл\"];\n", i, List->Array_Prev[i]);
+                    fprintf (file_graph, "    %d->%d[label = \"Неправильный цикл\"];\n", int (&List->Array[i] - List->Array), int (List->Array[i].Prev - List->Array));
                 }
             }
             else
             {
-                fprintf (file_graph, "    %zu->%zd[label = \"Невозможное значение Prev\"];\n", i, List->Array_Prev[i]);
+                fprintf (file_graph, "    %d->%d[label = \"Невозможное значение Prev\"];\n", int (&List->Array[i] - List->Array), int (List->Array[i].Prev - List->Array));
             }
         }
     }
@@ -471,8 +461,6 @@ int Dump_For_Graph     (const list_k* const List, FILE* const file_graph)
 
 int Dump_For_Html      (const list_k* const List, const char* const Name_File_Graph, const char* const Name_Function)
 {
-    printf ("%s\n", Name_File_Graph);
-
     FILE* file = fopen (Name_Log, "a");
     if (file == NULL)
     {
@@ -482,11 +470,11 @@ int Dump_For_Html      (const list_k* const List, const char* const Name_File_Gr
 
     fprintf (file, "<u>Dump after function</u> %s\n\n", Name_Function);
 
-    // int Number_Error = List_Error (List);
-    // if (Number_Error != 0)
-    // {
-    //     fprintf (file, "                          <b>%s</b>\n", Array_Name_List_Error[Number_Error]);
-    // }
+    int Number_Error = List_Error (List);
+    if (Number_Error != 0)
+    {
+        fprintf (file, "                          <b>%s</b>\n", Array_Name_List_Error[Number_Error]);
+    }
 
     fprintf (file, "SIZE = %zu\n", List->Size);
     fprintf (file, "CAPACITY = %zu\n", List->Capacity);
@@ -609,7 +597,7 @@ int Dump_For_Html      (const list_k* const List, const char* const Name_File_Gr
     fprintf (file, "<img src = \"%s\">\n", Name_File_Graph);
     fprintf (file, "\n");
 
-    Print_Separator_In_Log (300, file);
+    Print_Separator_In_Log (450, file);
     fclose (file);
 
     #ifdef STOP_PROGRAMME
@@ -665,7 +653,7 @@ int Dump_For_Html      (const list_k* const List, const char* const Name_File_Gr
 //
 //     return 0;
 // }
-//
+
 // int List_Insert_Before (const int Value, const int Index, list_k* const List)
 // {
 //     char Name_Func[52];
@@ -834,53 +822,41 @@ int Dump_For_Html      (const list_k* const List, const char* const Name_File_Gr
 //
 //     return 0;
 // }
-//
-// int List_Reallocation  (list_k* const List)
-// {
-//     if (List->Size + 1 == List->Capacity)
-//     {
-//         List->Capacity = List->Capacity * 2;
-//
-//         List->Array_Value = (int*) realloc (List->Array_Value, List->Capacity * sizeof (int));
-//         if (List->Array_Value == NULL)
-//         {
-//             printf ("Error allocation memory for array value in List_Reallocation\n");
-//             return There_Are_Errors;
-//         }
-//         for (size_t i = List->Size + 1; i < List->Capacity; i++)
-//         {
-//             List->Array_Value[i] = 0;
-//         }
-//
-//
-//         List->Array_Next = (size_t*) realloc (List->Array_Next, List->Capacity * sizeof (size_t*));
-//         if (List->Array_Next == NULL)
-//         {
-//             printf ("Error allocation memory for array next in List_Reallocation!\n");
-//             return There_Are_Errors;
-//         }
-//         for (size_t i = List->Size + 1; i < List->Capacity - 1; i++)
-//         {
-//             List->Array_Next[i] = i + 1;
-//         }
-//         List->Array_Next[List->Capacity - 1] = 0;
-//
-//         List->Array_Prev = (ssize_t*) realloc (List->Array_Prev, List->Capacity * sizeof (ssize_t*));
-//         if (List->Array_Prev == NULL)
-//         {
-//             printf ("Error allocation memory for array prev in List_Reallocation!\n");
-//             return There_Are_Errors;
-//         }
-//         for (size_t i = List->Size + 1; i < List->Capacity; i++)
-//         {
-//             List->Array_Prev[i] = -1;
-//         }
-//
-//         List->Free = List->Size + 1;
-//     }
-//
-//     return 0;
-// }
+
+int List_Reallocation  (list_k* const List)
+{
+    if (List->Size + 1 == List->Capacity)
+    {
+        List->Capacity = List->Capacity * 2;
+
+        List->Array = (node_k*) realloc (List->Array, List->Capacity * sizeof (node_k));
+        if (List->Array == NULL)
+        {
+            printf ("Error allocation memory for array value in List_Reallocation\n");
+            return There_Are_Errors;
+        }
+
+        for (size_t i = List->Size + 1; i < List->Capacity; i++)
+        {
+            List->Array[i].Value = 0;
+        }
+
+        for (size_t i = List->Size + 1; i < List->Capacity - 1; i++)
+        {
+            List->Array[i].Next = &List->Array[i + 1];
+        }
+        List->Array[List->Capacity - 1].Next = List->Array;
+
+        for (size_t i = List->Size + 1; i < List->Capacity; i++)
+        {
+            List->Array[i].Prev = NULL;
+        }
+
+        List->Free = &List->Array[List->Size + 1];
+    }
+
+    return 0;
+}
 
 
 int Start_Logfile          ()
@@ -894,7 +870,7 @@ int Start_Logfile          ()
 
     fprintf (file_html, "<pre>\n\n");
 
-    Print_Separator_In_Log (300, file_html);
+    Print_Separator_In_Log (450, file_html);
 
     fclose (file_html);
 
