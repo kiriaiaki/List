@@ -1,5 +1,5 @@
 #include "List_Classic.h"
-//#define DEBUG // включает верификаторы и создание logfile
+#define DEBUG // включает верификаторы и создание logfile
 //#define STOP_PROGRAMME // в случае выявления ошибок в списке программа останавливается
 
 int main ()
@@ -20,32 +20,32 @@ int main ()
     }
 
 
-    if (List_Insert_After (10, 0, &List) == There_Are_Errors)
+    if (List_Insert_After (10, &List.Array[0], &List) == There_Are_Errors)
     {
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
     }
-    if (List_Insert_After (20, 1, &List) == There_Are_Errors)
+    if (List_Insert_After (20, &List.Array[1], &List) == There_Are_Errors)
     {
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
     }
-    if (List_Insert_After (30, 2, &List) == There_Are_Errors)
+    if (List_Insert_After (30, &List.Array[2], &List) == There_Are_Errors)
     {
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
     }
-    if (List_Insert_After (40, 3, &List) == There_Are_Errors)
+    if (List_Insert_After (40, &List.Array[3], &List) == There_Are_Errors)
     {
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
     }
-    if (List_Insert_After (25, 2, &List) == There_Are_Errors)
+    if (List_Insert_After (25, &List.Array[2], &List) == There_Are_Errors)
     {
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
     }
-    if (List_Delete (5, &List) == There_Are_Errors)
+    if (List_Delete (&List.Array[5], &List) == There_Are_Errors)
     {
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
@@ -54,7 +54,7 @@ int main ()
     // List.Array[2].Prev = List.Array - 100; // специальные ошибки
     // List.Array[3].Next = &List.Array[List.Capacity - 1] + 191;
 
-    if (List_Insert_After (50, 4, &List) == There_Are_Errors)
+    if (List_Insert_After (50, &List.Array[4], &List) == There_Are_Errors)
     {
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
@@ -69,7 +69,7 @@ int main ()
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
     }
-    if (List_Delete (7, &List) == There_Are_Errors)
+    if (List_Delete (&List.Array[7], &List) == There_Are_Errors)
     {
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
@@ -376,18 +376,18 @@ int Dump_For_Graph     (const list_k* const List, FILE* const file_graph)
                    "    edge[color = \"red\", style = \"bold\"];\n");
     fprintf (file_graph, "\n");
 
-    fprintf (file_graph, "    %d [shape = Mrecord, label = \"index = %d | value = %d | {head = %p | tail = %p}\", style = \"filled\", fillcolor = \"lightblue\"];\n", 0, 0, List->Array[0].Value, List->Array[0].Prev, List->Array[0].Next);
+    fprintf (file_graph, "    %d [shape = Mrecord, label = \"index = %d | ptr = %p | value = %d | {head = %p | tail = %p}\", style = \"filled\", fillcolor = \"lightblue\"];\n", 0, 0, List->Array , List->Array[0].Value, List->Array[0].Prev, List->Array[0].Next);
 
     for (size_t i = 1; i < List->Capacity; i++)
     {
         if (List->Array[i].Prev == NULL)
         {
-            fprintf (file_graph, "    %zu [shape = Mrecord, label = \"index = %zu | value = %d | {prev = %p | next = %p}\", style = \"filled\", fillcolor = \"lightgrey\"];\n", i, i, List->Array[i].Value, List->Array[i].Prev, List->Array[i].Next);
+            fprintf (file_graph, "    %zu [shape = Mrecord, label = \"index = %zu | ptr = %p | value = %d | {prev = %p | next = %p}\", style = \"filled\", fillcolor = \"lightgrey\"];\n", i, i, &List->Array[i], List->Array[i].Value, List->Array[i].Prev, List->Array[i].Next);
         }
 
         else
         {
-            fprintf (file_graph, "    %zu [shape = Mrecord, label = \"index = %zu | value = %d | {prev = %p | next = %p}\", style = \"filled\", fillcolor = \"lightblue\"];\n", i, i, List->Array[i].Value, List->Array[i].Prev, List->Array[i].Next);
+            fprintf (file_graph, "    %zu [shape = Mrecord, label = \"index = %zu | ptr = %p | value = %d | {prev = %p | next = %p}\", style = \"filled\", fillcolor = \"lightblue\"];\n", i, i, &List->Array[i], List->Array[i].Value, List->Array[i].Prev, List->Array[i].Next);
         }
     }
     fprintf (file_graph, "\n");
@@ -423,12 +423,12 @@ int Dump_For_Graph     (const list_k* const List, FILE* const file_graph)
             {
                 if (List->Array[i].Next != Repeat_Free)
                 {
-                    fprintf (file_graph, "    %d->%d[color = \"green\"];\n", int (&List->Array[i] - List->Array), int (List->Array[i].Next - List->Array));
+                    fprintf (file_graph, "    %zu->%d[color = \"green\"];\n", i, int (List->Array[i].Next - List->Array));
                 }
 
                 else
                 {
-                    fprintf (file_graph, "    %d->%d[label = \"Повторные стрелки\"];\n", int (&List->Array[i] - List->Array), int (List->Array[i].Next - List->Array));
+                    fprintf (file_graph, "    %zu->%d[label = \"Повторные стрелки\"];\n", i, int (List->Array[i].Next - List->Array));
                 }
             }
 
@@ -441,19 +441,19 @@ int Dump_For_Graph     (const list_k* const List, FILE* const file_graph)
             {
                 if (List->Array[i].Next->Prev == &List->Array[i])
                 {
-                    fprintf (file_graph, "    %d->%d[color = \"pink2:goldenrod1\", dir = both];\n", int (&List->Array[i] - List->Array), int (List->Array[i].Next - List->Array));
+                    fprintf (file_graph, "    %zu->%d[color = \"pink2:goldenrod1\", dir = both];\n", i, int (List->Array[i].Next - List->Array));
                 }
 
                 else
                 {
-                    fprintf (file_graph, "    %d->%d[label = \"Неправильный цикл\"];\n", int (&List->Array[i] - List->Array), int (List->Array[i].Next - List->Array));
+                    fprintf (file_graph, "    %zu->%d[label = \"Неправильный цикл\"];\n", i, int (List->Array[i].Next - List->Array));
                 }
             }
         }
 
         else
         {
-            fprintf (file_graph, "    %d->%d[label = \"Невозможное значение Next\"];\n", int (&List->Array[i] - List->Array), int (List->Array[i].Next - List->Array));
+            fprintf (file_graph, "    %zu->%d[label = \"Невозможное значение Next\"];\n", i, int (List->Array[i].Next - List->Array));
         }
     }
     fprintf (file_graph, "\n");
@@ -466,12 +466,12 @@ int Dump_For_Graph     (const list_k* const List, FILE* const file_graph)
             {
                 if (List->Array[i].Prev->Next != &List->Array[i])
                 {
-                    fprintf (file_graph, "    %d->%d[label = \"Неправильный цикл\"];\n", int (&List->Array[i] - List->Array), int (List->Array[i].Prev - List->Array));
+                    fprintf (file_graph, "    %zu->%d[label = \"Неправильный цикл\"];\n", i, int (List->Array[i].Prev - List->Array));
                 }
             }
             else
             {
-                fprintf (file_graph, "    %d->%d[label = \"Невозможное значение Prev\"];\n", int (&List->Array[i] - List->Array), int (List->Array[i].Prev - List->Array));
+                fprintf (file_graph, "    %zu->%d[label = \"Невозможное значение Prev\"];\n", i, int (List->Array[i].Prev - List->Array));
             }
         }
     }
@@ -635,10 +635,12 @@ int Dump_For_Html      (const list_k* const List, const char* const Name_File_Gr
 }
 
 
-int List_Insert_After  (const int Value, const int Index, list_k* const List)
+int List_Insert_After  (const int Value, node_k* const Node, list_k* const List)
 {
+    int Index = int (Node - List->Array);
+
     char Name_Func[52];
-    snprintf (Name_Func, sizeof (Name_Func), "List_Insert_After (%d, %d, List)", Value, Index);
+    snprintf (Name_Func, sizeof (Name_Func), "List_Insert_After (%d, %p, List)", Value, Node);
 
     #ifdef DEBUG
     if (List_Error (List) != Not_Error_List)
@@ -675,10 +677,12 @@ int List_Insert_After  (const int Value, const int Index, list_k* const List)
     return 0;
 }
 
-int List_Insert_Before (const int Value, const int Index, list_k* const List)
+int List_Insert_Before (const int Value, node_k* const Node, list_k* const List)
 {
+    int Index = int (Node - List->Array);
+
     char Name_Func[52];
-    snprintf (Name_Func, sizeof (Name_Func), "List_Insert_Before (%d, %d, List)", Value, Index);
+    snprintf (Name_Func, sizeof (Name_Func), "List_Insert_Before (%d, %p, List)", Value, Node);
 
     #ifdef DEBUG
     if (List_Error (List) != Not_Error_List)
@@ -787,10 +791,12 @@ int List_Push_Back     (const int Value, list_k* const List)
     return 0;
 }
 
-int List_Delete        (const int Index, list_k* const List)
+int List_Delete        (node_k* const Node, list_k* const List)
 {
+    int Index = int (Node - List->Array);
+
     char Name_Func[52];
-    snprintf (Name_Func, sizeof (Name_Func), "List_Delete (%d, List)", Index);
+    snprintf (Name_Func, sizeof (Name_Func), "List_Delete (%p, List)", Node);
 
     #ifdef DEBUG
     if (List_Error (List) != Not_Error_List)

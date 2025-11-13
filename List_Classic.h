@@ -75,11 +75,11 @@ int Naming_Command_Dot (char* const Name_Command, char* const Name_File);
 int Dump_For_Graph     (const list_k* const List, FILE* const file);
 int Dump_For_Html      (const list_k* const List, const char* const Name_File, const char* const Name_Function);
 
-int List_Insert_After  (const int Value, const int Index, list_k* const List);
-int List_Insert_Before (const int Value, const int Index, list_k* const List);
+int List_Insert_After  (const int Value, node_k* const Node, list_k* const List);
+int List_Insert_Before (const int Value, node_k* const Node, list_k* const List);
 int List_Push_Front    (const int Value, list_k* const List);
 int List_Push_Back     (const int Value, list_k* const List);
-int List_Delete        (const int Index, list_k* const List);
+int List_Delete        (node_k* const Node, list_k* const List);
 int List_Reallocation  (list_k* const List);
 
 int Insert_After (const int Value, const int Index, list_k* const List);
