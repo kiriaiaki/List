@@ -63,7 +63,7 @@ node_k* List_Insert_After  (const int Value, node_k* const Node, list_k* const L
 node_k* List_Insert_Before (const int Value, node_k* const Node, list_k* const List);
 node_k* List_Push_Front    (const int Value, list_k* const List);
 node_k* List_Push_Back     (const int Value, list_k* const List);
-int List_Delete        (node_k* const Node, list_k* const List);
+int List_Delete            (node_k* const Node, list_k* const List);
 
 node_k* Insert_After  (const int Value, node_k* const Node, list_k* const List);
 node_k* Insert_Before (const int Value, node_k* const Node, list_k* const List);
