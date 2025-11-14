@@ -41,11 +41,12 @@ const char* Array_Name_List_Error[Quantity_Error] = {
     "!!!BAD SIZE!!!",
 };
 
-const int There_Are_Errors = -2902;
-const int Canary = 2008;
-const int Canary_2 = 21082007;
-const double Minimum_Contrast_Ratio = 6;
-const char Name_Log[] = "Log_File.html";
+const int There_Are_Errors =           -2902;
+const int Canary           =            2008;
+const int Canary_2         =        21082007;
+const char Name_Log[]      = "Log_File.html";
+const double Minimum_Contrast_Ratio    =   6;
+
 
 int List_Ctor  (list_k* const List);
 int List_Dtor  (list_k* const List);
@@ -58,14 +59,14 @@ int Dump_For_Graph     (const list_k* const List, FILE* const file);
 int Print_Node_Graph   (const node_k* const Current_Node, unsigned long Color, FILE* const file_graph);
 int Dump_For_Html      (const list_k* const List, const char* const Name_File, const char* const Name_Function);
 
-int List_Insert_After  (const int Value, node_k* const Node, list_k* const List);
-int List_Insert_Before (const int Value, node_k* const Node, list_k* const List);
-int List_Push_Front    (const int Value, list_k* const List);
-int List_Push_Back     (const int Value, list_k* const List);
+node_k* List_Insert_After  (const int Value, node_k* const Node, list_k* const List);
+node_k* List_Insert_Before (const int Value, node_k* const Node, list_k* const List);
+node_k* List_Push_Front    (const int Value, list_k* const List);
+node_k* List_Push_Back     (const int Value, list_k* const List);
 int List_Delete        (node_k* const Node, list_k* const List);
 
-int Insert_After (const int Value, node_k* const Node, list_k* const List);
-int Insert_Before (const int Value, node_k* const Node, list_k* const List);
+node_k* Insert_After  (const int Value, node_k* const Node, list_k* const List);
+node_k* Insert_Before (const int Value, node_k* const Node, list_k* const List);
 
 int Start_Logfile                ();
 int Print_Separator_In_Log       (const size_t Len_Separator, FILE* file_html);

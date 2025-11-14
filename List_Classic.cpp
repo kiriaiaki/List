@@ -20,41 +20,41 @@ int main ()
     }
 
 
-    if (List_Insert_After (10, List.Null_Element, &List) == There_Are_Errors)
+    if (List_Insert_After  (10, List.Null_Element,       &List) == NULL)
     {
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
     }
-    if (List_Insert_After (30, List.Null_Element->Next, &List) == There_Are_Errors)
+    if (List_Insert_After  (30, List.Null_Element->Next, &List) == NULL)
     {
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
     }
-    if (List_Insert_After (20, List.Null_Element->Next, &List) == There_Are_Errors)
+    if (List_Insert_After  (20, List.Null_Element->Next, &List) == NULL)
     {
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
     }
-    if (List_Push_Back (40, &List) == There_Are_Errors)
+    if (List_Push_Back     (40,                          &List) == NULL)
     {
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
     }
 
-    List.Null_Element->Next->Next->Prev = List.Null_Element - 100; // специальные ошибки
+    //List.Null_Element->Next->Next->Prev = List.Null_Element - 100; // специальные ошибки
     //List.Null_Element->Next->Next = List.Null_Element - 100;
 
-    if (List_Push_Front (1, &List) == There_Are_Errors)
+    if (List_Push_Front    ( 1,                          &List) == NULL)
     {
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
     }
-    if (List_Delete (List.Null_Element->Next, &List) == There_Are_Errors)
+    if (List_Delete        (    List.Null_Element->Next, &List) == There_Are_Errors)
     {
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
     }
-    if (List_Insert_Before (5, List.Null_Element->Next, &List) == There_Are_Errors)
+    if (List_Insert_Before ( 5, List.Null_Element->Next, &List) == NULL)
     {
         printf ("\033[31m!!!EEERRRRRROOORRR!!!\033[0m\n");
         return 0;
@@ -410,7 +410,7 @@ int Dump_For_Html      (const list_k* const List, const char* const Name_File_Gr
 }
 
 
-int List_Insert_After  (const int Value, node_k* const Node, list_k* const List)
+node_k* List_Insert_After  (const int Value, node_k* const Node, list_k* const List)
 {
     char Name_Func[52];
     snprintf (Name_Func, sizeof (Name_Func), "List_Insert_After (%d, %p, List)", Value, Node);
@@ -421,7 +421,7 @@ int List_Insert_After  (const int Value, node_k* const Node, list_k* const List)
             List_Dump (List, Name_Func);
             printf ("Error start function %s\n", Name_Func);
             #ifdef STOP_PROGRAMME
-                return There_Are_Errors;
+                return NULL;
             #endif // STOP_PROGRAMME
         }
     #endif // DEBUG
@@ -429,27 +429,28 @@ int List_Insert_After  (const int Value, node_k* const Node, list_k* const List)
     if (Node->Verification != ((uintptr_t) (Node) ^ Canary))
     {
         printf ("Impossible %s, bad pointer\n", Name_Func);
-        return There_Are_Errors;
+        return NULL;
     }
 
-    if (Insert_After (Value, Node, List) == There_Are_Errors)
+    node_k* New_Node = Insert_After (Value, Node, List);
+    if (New_Node == NULL)
     {
         printf ("Error allocation memory for node in List_Insert_After (%d, %p, List)\n", Value, Node);
-        return There_Are_Errors;
+        return NULL;
     }
 
     #ifdef DEBUG
         if (List_Dump (List, Name_Func) == There_Are_Errors)
         {
             printf ("Error in function %s\n", Name_Func);
-            return There_Are_Errors;
+            return NULL;
         }
     #endif // DEBUG
 
-    return 0;
+    return New_Node;
 }
 
-int List_Insert_Before (const int Value, node_k* const Node, list_k* const List)
+node_k* List_Insert_Before (const int Value, node_k* const Node, list_k* const List)
 {
     char Name_Func[52];
     snprintf (Name_Func, sizeof (Name_Func), "List_Insert_Before (%d, %p, List)", Value, Node);
@@ -460,7 +461,7 @@ int List_Insert_Before (const int Value, node_k* const Node, list_k* const List)
             List_Dump (List, Name_Func);
             printf ("Error start function %s\n", Name_Func);
             #ifdef STOP_PROGRAMME
-                return There_Are_Errors;
+                return NULL;
             #endif // STOP_PROGRAMME
         }
     #endif // DEBUG
@@ -468,27 +469,28 @@ int List_Insert_Before (const int Value, node_k* const Node, list_k* const List)
     if (Node->Verification != ((uintptr_t) (Node) ^ Canary))
     {
         printf ("Impossible %s, bad pointer\n", Name_Func);
-        return There_Are_Errors;
+        return NULL;
     }
 
-    if (Insert_Before (Value, Node, List) == There_Are_Errors)
+    node_k* New_Node = Insert_Before (Value, Node, List);
+    if (New_Node == NULL)
     {
         printf ("Error allocation memory for node in %s\n", Name_Func);
-        return There_Are_Errors;
+        return NULL;
     }
 
     #ifdef DEBUG
         if (List_Dump (List, Name_Func) == There_Are_Errors)
         {
             printf ("Error in function %s\n", Name_Func);
-            return There_Are_Errors;
+            return NULL;
         }
     #endif // DEBUG
 
-    return 0;
+    return New_Node;
 }
 
-int List_Push_Front    (const int Value, list_k* const List)
+node_k* List_Push_Front    (const int Value, list_k* const List)
 {
     char Name_Func[52];
     snprintf (Name_Func, sizeof (Name_Func), "List_Push_Front (%d, List)", Value);
@@ -499,31 +501,32 @@ int List_Push_Front    (const int Value, list_k* const List)
             List_Dump (List, Name_Func);
             printf ("Error start function %s\n", Name_Func);
             #ifdef STOP_PROGRAMME
-                return There_Are_Errors;
+                return NULL;
             #endif // STOP_PROGRAMME
         }
     #endif // DEBUG
 
     node_k* Node = List->Null_Element->Next;
 
-    if (Insert_Before (Value, Node, List) == There_Are_Errors)
+    node_k* New_Node = Insert_Before (Value, Node, List);
+    if (New_Node == NULL)
     {
         printf ("Error allocation memory for node in List_Push_Front (%d, List)\n", Value);
-        return There_Are_Errors;
+        return NULL;
     }
 
     #ifdef DEBUG
         if (List_Dump (List, Name_Func) == There_Are_Errors)
         {
             printf ("Error in function %s\n", Name_Func);
-            return There_Are_Errors;
+            return NULL;
         }
     #endif // DEBUG
 
-    return 0;
+    return New_Node;
 }
 
-int List_Push_Back     (const int Value, list_k* const List)
+node_k* List_Push_Back     (const int Value, list_k* const List)
 {
     char Name_Func[52];
     snprintf (Name_Func, sizeof (Name_Func), "List_Push_Back (%d, List)", Value);
@@ -534,28 +537,29 @@ int List_Push_Back     (const int Value, list_k* const List)
             List_Dump (List, Name_Func);
             printf ("Error start function %s\n", Name_Func);
             #ifdef STOP_PROGRAMME
-                return There_Are_Errors;
+                return NULL;
             #endif // STOP_PROGRAMME
         }
     #endif // DEBUG
 
     node_k* Node = List->Null_Element->Prev;
 
-    if (Insert_After (Value, Node, List) == There_Are_Errors)
+    node_k* New_Node = Insert_After (Value, Node, List);
+    if (New_Node == NULL)
     {
         printf ("Error allocation memory for node in List_Push_Back (%d, List)\n", Value);
-        return There_Are_Errors;
+        return NULL;
     }
 
     #ifdef DEBUG
         if (List_Dump (List, Name_Func) == There_Are_Errors)
         {
             printf ("Error in function %s\n", Name_Func);
-            return There_Are_Errors;
+            return NULL;
         }
     #endif // DEBUG
 
-    return 0;
+    return New_Node;
 }
 
 int List_Delete        (node_k* const Node, list_k* const List)
@@ -598,12 +602,12 @@ int List_Delete        (node_k* const Node, list_k* const List)
 }
 
 
-int Insert_After  (const int Value, node_k* const Node, list_k* const List)
+node_k* Insert_After  (const int Value, node_k* const Node, list_k* const List)
 {
     node_k* New_Node = (node_k*) calloc (1, sizeof (node_k));
     if (New_Node == NULL)
     {
-        return There_Are_Errors;
+        return NULL;
     }
 
     New_Node->Next = Node->Next;
@@ -616,15 +620,15 @@ int Insert_After  (const int Value, node_k* const Node, list_k* const List)
 
     List->Size++;
 
-    return 0;
+    return New_Node;
 }
 
-int Insert_Before (const int Value, node_k* const Node, list_k* const List)
+node_k* Insert_Before (const int Value, node_k* const Node, list_k* const List)
 {
     node_k* New_Node = (node_k*) calloc (1, sizeof (node_k));
     if (New_Node == NULL)
     {
-        return There_Are_Errors;
+        return NULL;
     }
 
     New_Node->Next = Node;
@@ -637,7 +641,7 @@ int Insert_Before (const int Value, node_k* const Node, list_k* const List)
 
     List->Size++;
 
-    return 0;
+    return New_Node;
 }
 
 
