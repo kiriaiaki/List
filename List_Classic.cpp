@@ -412,10 +412,10 @@ int Dump_For_Html      (const list_k* const List, const char* const Name_File_Gr
 
 node_k* List_Insert_After  (const int Value, node_k* const Node, list_k* const List)
 {
-    char Name_Func[52];
-    snprintf (Name_Func, sizeof (Name_Func), "List_Insert_After (%d, %p, List)", Value, Node);
-
     #ifdef DEBUG
+        char Name_Func[52];
+        snprintf (Name_Func, sizeof (Name_Func), "List_Insert_After (%d, %p, List)", Value, Node);
+
         if (List_Error (List) != Not_Error_List)
         {
             List_Dump (List, Name_Func);
@@ -452,10 +452,10 @@ node_k* List_Insert_After  (const int Value, node_k* const Node, list_k* const L
 
 node_k* List_Insert_Before (const int Value, node_k* const Node, list_k* const List)
 {
-    char Name_Func[52];
-    snprintf (Name_Func, sizeof (Name_Func), "List_Insert_Before (%d, %p, List)", Value, Node);
-
     #ifdef DEBUG
+        char Name_Func[52];
+        snprintf (Name_Func, sizeof (Name_Func), "List_Insert_Before (%d, %p, List)", Value, Node);
+
         if (List_Error (List) != Not_Error_List)
         {
             List_Dump (List, Name_Func);
@@ -492,10 +492,10 @@ node_k* List_Insert_Before (const int Value, node_k* const Node, list_k* const L
 
 node_k* List_Push_Front    (const int Value, list_k* const List)
 {
-    char Name_Func[52];
-    snprintf (Name_Func, sizeof (Name_Func), "List_Push_Front (%d, List)", Value);
-
     #ifdef DEBUG
+        char Name_Func[52];
+        snprintf (Name_Func, sizeof (Name_Func), "List_Push_Front (%d, List)", Value);
+
         if (List_Error (List) != Not_Error_List)
         {
             List_Dump (List, Name_Func);
@@ -528,10 +528,10 @@ node_k* List_Push_Front    (const int Value, list_k* const List)
 
 node_k* List_Push_Back     (const int Value, list_k* const List)
 {
-    char Name_Func[52];
-    snprintf (Name_Func, sizeof (Name_Func), "List_Push_Back (%d, List)", Value);
-
     #ifdef DEBUG
+        char Name_Func[52];
+        snprintf (Name_Func, sizeof (Name_Func), "List_Push_Back (%d, List)", Value);
+
         if (List_Error (List) != Not_Error_List)
         {
             List_Dump (List, Name_Func);
@@ -564,10 +564,10 @@ node_k* List_Push_Back     (const int Value, list_k* const List)
 
 int List_Delete        (node_k* const Node, list_k* const List)
 {
-    char Name_Func[52];
-    snprintf (Name_Func, sizeof (Name_Func), "List_Delete (%p, List)", Node);
-
     #ifdef DEBUG
+        char Name_Func[52];
+        snprintf (Name_Func, sizeof (Name_Func), "List_Delete (%p, List)", Node);
+
         if (List_Error (List) != Not_Error_List)
         {
             List_Dump (List, Name_Func);
