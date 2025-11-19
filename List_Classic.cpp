@@ -41,8 +41,8 @@ int main ()
         return 0;
     }
 
-    //List.Null_Element->Next->Next->Prev = List.Null_Element - 100; // специальные ошибки
-    //List.Null_Element->Next->Next = List.Null_Element - 100;
+    // List.Null_Element->Next->Next->Prev = List.Null_Element - 100; // специальные ошибки
+    // List.Null_Element->Next->Next = List.Null_Element - 100;
 
     if (List_Push_Front    ( 1,                          &List) == NULL)
     {
@@ -311,7 +311,7 @@ int Dump_For_Graph     (const list_k* const List, FILE* const file_graph)
 
         else
         {
-            Print_Node_Graph(Current_Node, 0xD3D3D3, file_graph);
+            Print_Node_Graph(Current_Node, 0xFFB6C1, file_graph);
             fprintf (file_graph, "    %lu->%lu [label = \"Невозможное значение next, цикл остановлен\"];\n", (uintptr_t) Current_Node, (uintptr_t) Current_Node->Next);
             break;
         }
@@ -336,12 +336,12 @@ int Dump_For_Graph     (const list_k* const List, FILE* const file_graph)
 int Print_Node_Graph   (const node_k* const Current_Node, unsigned long Color, FILE* const file_graph)
 {
     fprintf (file_graph, "    %lu [shape = Mrecord, label = <<TABLE BORDER = \"0\" CELLBORDER = \"1\" CELLSPACING = \"0\" CELLPADDING = \"4\" BGCOLOR = \"#%lx\">\n"
-                         "        <TR> <TD COLSPAN = \"2\"> <b>ptr</b>   = <FONT COLOR = \"#%lx\">%p</FONT>  </TD> </TR>\n"
+                         "        <TR> <TD COLSPAN = \"2\" BGCOLOR = \"#%06x\"> <b>ptr</b>   = %p  </TD> </TR>\n"
                          "        <TR> <TD COLSPAN = \"2\"> <b>ver</b>   = %lu </TD> </TR>\n"
                          "        <TR> <TD COLSPAN = \"2\"> <b>value</b> = %d  </TD> </TR>\n\n"
-                         "        <TR> <TD> <b>prev</b> = <FONT COLOR = \"#%lx\">%p</FONT> </TD>\n"
-                         "             <TD> <b>next</b> = <FONT COLOR = \"#%lx\">%p</FONT> </TD> </TR>\n"
-                         "        </TABLE>>, style = \"filled\", fillcolor = \"#%lx\"];\n", (uintptr_t) Current_Node, Color, Djb_Pointer_Hash (Current_Node), Current_Node, Current_Node->Verification, Current_Node->Value, Djb_Pointer_Hash (Current_Node->Prev), Current_Node->Prev, Djb_Pointer_Hash (Current_Node->Next), Current_Node->Next, Color);
+                         "        <TR> <TD BGCOLOR = \"#%06x\"> <b>prev</b> = %p </TD>\n"
+                         "             <TD BGCOLOR = \"#%06x\"> <b>next</b> = %p </TD> </TR>\n"
+                         "        </TABLE>>, style = \"filled\", fillcolor = \"#%lx\"];\n", (uintptr_t) Current_Node, Color, Hash_Pointer (Current_Node), Current_Node, Current_Node->Verification, Current_Node->Value, Hash_Pointer (Current_Node->Prev), Current_Node->Prev, Hash_Pointer (Current_Node->Next), Current_Node->Next, Color);
 
     return 0;
 }
@@ -722,28 +722,6 @@ char* itoa_k               (int Number, char* const Str)
     return Str;
 }
 
-// unsigned long Generation_Color (const node_k* const Current_Node, unsigned long Back_Ground_Color)
-// {
-//     // unsigned long Number = (uintptr_t) Current_Node;
-//     unsigned long Color = Djb_Pointer_Hash (Current_Node);
-//     // unsigned long Iteration = 0;
-//
-// //     while (Calculate_Contrast (Color, Back_Ground_Color) < Minimum_Contrast_Ratio)
-// //     {
-// // //         Number = Number + Iteration;
-// // //
-// // //         Number = ((Number >> 32) ^ Number) * 0x9e3779b97f4a7c15;
-// // //         Number = ((Number >> 32) ^ Number) * 0x9e3779b97f4a7c15;
-// // //         Number = ((Number >> 32) ^ Number);
-// // //
-// // //         Color = Number & 0xFFFFFF;
-// // //
-// // //         Iteration++;
-// //     }
-//
-//     return Color;
-// }
-
 // double Calculate_Contrast (unsigned long Color, unsigned long Back_Ground_Color)
 // {
 //     double r_1 = ((Color >> 16) % 0xFF) / 255.0;
@@ -762,11 +740,11 @@ char* itoa_k               (int Number, char* const Str)
 //     return (brighter + 0.05) / (darker + 0.05);
 // }
 
-unsigned long Djb_Pointer_Hash (const void *ptr)
+unsigned int Hash_Pointer (const void *ptr)
 {
     uintptr_t Ptr_Value = (uintptr_t) ptr;
 
-    unsigned long Hash = 5381;
+    unsigned int Hash = 5381;
 
     unsigned char *Byte_Ptr = (unsigned char *) &Ptr_Value;
     size_t Pointer_Size = sizeof(Ptr_Value);
@@ -776,5 +754,5 @@ unsigned long Djb_Pointer_Hash (const void *ptr)
         Hash = ((Hash << 7) + Hash) + Byte_Ptr[i];
     }
 
-    return Hash & 0xFFFFFF;
+    return Hash;
 }

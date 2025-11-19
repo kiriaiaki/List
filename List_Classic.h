@@ -72,6 +72,4 @@ int Start_Logfile                ();
 int Print_Separator_In_Log       (const size_t Len_Separator, FILE* file_html);
 int Reverse_Str                  (char* const Str);
 char* itoa_k                     (int Number, char* const Str);
-unsigned long Generation_Color   (const node_k* const Current_Node, unsigned long Back_Ground_Color);
-double Calculate_Contrast        (unsigned long Color, unsigned long Back_Ground_Color);
-unsigned long Djb_Pointer_Hash (const void *ptr);
+unsigned int Hash_Pointer        (const void *ptr);
