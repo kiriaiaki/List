@@ -74,3 +74,4 @@ int Reverse_Str                  (char* const Str);
 char* itoa_k                     (int Number, char* const Str);
 unsigned long Generation_Color   (const node_k* const Current_Node, unsigned long Back_Ground_Color);
 double Calculate_Contrast        (unsigned long Color, unsigned long Back_Ground_Color);
+unsigned long Djb_Pointer_Hash (const void *ptr);

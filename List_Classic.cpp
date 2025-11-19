@@ -278,7 +278,7 @@ int Dump_For_Graph     (const list_k* const List, FILE* const file_graph)
         {
             if (Current_Node->Prev->Verification == ((uintptr_t) (Current_Node->Prev) ^ Canary))
             {
-                Print_Node_Graph(Current_Node, 0xADD8E6, file_graph);
+                Print_Node_Graph(Current_Node, 0xD3D3D3, file_graph);
                 fprintf (file_graph, "    %lu->%lu [style = invis, weight = 500];\n", (uintptr_t) Current_Node, (uintptr_t) Current_Node->Next);
 
                 if (Current_Node->Next->Prev == Current_Node)
@@ -304,7 +304,7 @@ int Dump_For_Graph     (const list_k* const List, FILE* const file_graph)
                     fprintf (file_graph, "    %lu->%lu [label = \"Неправильный цикл\"];\n", (uintptr_t) Current_Node, (uintptr_t) Current_Node->Next);
                 }
 
-                Print_Node_Graph(Current_Node, 0xD3D3D3, file_graph);
+                Print_Node_Graph(Current_Node, 0xFFB6C1, file_graph);
                 fprintf (file_graph, "    %lu->%lu [label = \"Невозможное значение prev\"];\n", (uintptr_t) Current_Node, (uintptr_t) Current_Node->Prev);
             }
         }
@@ -341,7 +341,7 @@ int Print_Node_Graph   (const node_k* const Current_Node, unsigned long Color, F
                          "        <TR> <TD COLSPAN = \"2\"> <b>value</b> = %d  </TD> </TR>\n\n"
                          "        <TR> <TD> <b>prev</b> = <FONT COLOR = \"#%lx\">%p</FONT> </TD>\n"
                          "             <TD> <b>next</b> = <FONT COLOR = \"#%lx\">%p</FONT> </TD> </TR>\n"
-                         "        </TABLE>>, style = \"filled\", fillcolor = \"#%lx\"];\n", (uintptr_t) Current_Node, Color, Generation_Color (Current_Node, Color), Current_Node, Current_Node->Verification, Current_Node->Value, Generation_Color (Current_Node->Prev, Color), Current_Node->Prev, Generation_Color (Current_Node->Next, Color), Current_Node->Next, Color);
+                         "        </TABLE>>, style = \"filled\", fillcolor = \"#%lx\"];\n", (uintptr_t) Current_Node, Color, Djb_Pointer_Hash (Current_Node), Current_Node, Current_Node->Verification, Current_Node->Value, Djb_Pointer_Hash (Current_Node->Prev), Current_Node->Prev, Djb_Pointer_Hash (Current_Node->Next), Current_Node->Next, Color);
 
     return 0;
 }
@@ -428,7 +428,7 @@ node_k* List_Insert_After  (const int Value, node_k* const Node, list_k* const L
 
     if (Node->Verification != ((uintptr_t) (Node) ^ Canary))
     {
-        printf ("Impossible %s, bad pointer\n", Name_Func);
+        printf ("Impossible List_Insert_After (%d, %p, List), bad pointer\n", Value, Node);
         return NULL;
     }
 
@@ -468,14 +468,14 @@ node_k* List_Insert_Before (const int Value, node_k* const Node, list_k* const L
 
     if (Node->Verification != ((uintptr_t) (Node) ^ Canary))
     {
-        printf ("Impossible %s, bad pointer\n", Name_Func);
+        printf ("Impossible List_Insert_Before (%d %p List), bad pointer\n", Value, Node);
         return NULL;
     }
 
     node_k* New_Node = Insert_Before (Value, Node, List);
     if (New_Node == NULL)
     {
-        printf ("Error allocation memory for node in %s\n", Name_Func);
+        printf ("Error allocation memory for node in List_Insert_Before (%d %p List)\n", Value, Node);
         return NULL;
     }
 
@@ -580,7 +580,7 @@ int List_Delete        (node_k* const Node, list_k* const List)
 
     if (Node->Verification != ((uintptr_t) (Node) ^ Canary))
     {
-        printf ("Impossible %s, bad pointer\n", Name_Func);
+        printf ("Impossible List_Delete (%p, List), bad pointer\n", Node);
         return There_Are_Errors;
     }
 
@@ -722,42 +722,59 @@ char* itoa_k               (int Number, char* const Str)
     return Str;
 }
 
-unsigned long Generation_Color (const node_k* const Current_Node, unsigned long Back_Ground_Color)
+// unsigned long Generation_Color (const node_k* const Current_Node, unsigned long Back_Ground_Color)
+// {
+//     // unsigned long Number = (uintptr_t) Current_Node;
+//     unsigned long Color = Djb_Pointer_Hash (Current_Node);
+//     // unsigned long Iteration = 0;
+//
+// //     while (Calculate_Contrast (Color, Back_Ground_Color) < Minimum_Contrast_Ratio)
+// //     {
+// // //         Number = Number + Iteration;
+// // //
+// // //         Number = ((Number >> 32) ^ Number) * 0x9e3779b97f4a7c15;
+// // //         Number = ((Number >> 32) ^ Number) * 0x9e3779b97f4a7c15;
+// // //         Number = ((Number >> 32) ^ Number);
+// // //
+// // //         Color = Number & 0xFFFFFF;
+// // //
+// // //         Iteration++;
+// //     }
+//
+//     return Color;
+// }
+
+// double Calculate_Contrast (unsigned long Color, unsigned long Back_Ground_Color)
+// {
+//     double r_1 = ((Color >> 16) % 0xFF) / 255.0;
+//     double g_1 = ((Color >> 8) % 0xFF) / 255.0;
+//     double b_1 = (Color % 0xFF) / 255.0;
+//     double luminance_1 = 0.2126 * r_1 + 0.7152 * g_1 + 0.0722 * b_1;
+//
+//     double r_2 = ((Back_Ground_Color >> 16) & 0xFF) / 255.0;
+//     double g_2 = ((Back_Ground_Color >> 8) & 0xFF) / 255.0;
+//     double b_2 = (Back_Ground_Color & 0xFF) / 255.0;
+//     double luminance_2 = 0.2126 * r_2 + 0.7152 * g_2 + 0.0722 * b_2;
+//
+//     double brighter = (luminance_1 > luminance_2) ? luminance_1 : luminance_2;
+//     double darker = (luminance_1 < luminance_2) ? luminance_1 : luminance_2;
+//
+//     return (brighter + 0.05) / (darker + 0.05);
+// }
+
+unsigned long Djb_Pointer_Hash (const void *ptr)
 {
-    unsigned long Number = (uintptr_t) Current_Node;
-    unsigned long Color = Back_Ground_Color;
-    unsigned long Iteration = 0;
+    uintptr_t Ptr_Value = (uintptr_t) ptr;
 
-    while (Calculate_Contrast (Color, Back_Ground_Color) < Minimum_Contrast_Ratio)
+    unsigned long Hash = 5381;
+
+    unsigned char *Byte_Ptr = (unsigned char *) &Ptr_Value;
+    size_t Pointer_Size = sizeof(Ptr_Value);
+
+    for (size_t i = 0; i < Pointer_Size; i++)
     {
-        Number = Number + Iteration;
-
-        Number = ((Number >> 32) ^ Number) * 0x9e3779b97f4a7c15;
-        Number = ((Number >> 32) ^ Number) * 0x9e3779b97f4a7c15;
-        Number = ((Number >> 32) ^ Number);
-
-        Color = Number & 0xFFFFFF;
-
-        Iteration++;
+        Hash = ((Hash << 7) + Hash) + Byte_Ptr[i];
     }
 
-    return Color;
-}
-
-double Calculate_Contrast (unsigned long Color, unsigned long Back_Ground_Color)
-{
-    double r_1 = ((Color >> 16) % 0xFF) / 255.0;
-    double g_1 = ((Color >> 8) % 0xFF) / 255.0;
-    double b_1 = (Color % 0xFF) / 255.0;
-    double luminance_1 = 0.2126 * r_1 + 0.7152 * g_1 + 0.0722 * b_1;
-
-    double r_2 = ((Back_Ground_Color >> 16) & 0xFF) / 255.0;
-    double g_2 = ((Back_Ground_Color >> 8) & 0xFF) / 255.0;
-    double b_2 = (Back_Ground_Color & 0xFF) / 255.0;
-    double luminance_2 = 0.2126 * r_2 + 0.7152 * g_2 + 0.0722 * b_2;
-
-    double brighter = (luminance_1 > luminance_2) ? luminance_1 : luminance_2;
-    double darker = (luminance_1 < luminance_2) ? luminance_1 : luminance_2;
-
-    return (brighter + 0.05) / (darker + 0.05);
+    return Hash & 0xFFFFFF;
 }
