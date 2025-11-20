@@ -41,8 +41,8 @@ int main ()
         return 0;
     }
 
-    // List.Null_Element->Next->Next->Prev = List.Null_Element - 100; // специальные ошибки
-    // List.Null_Element->Next->Next = List.Null_Element - 100;
+    List.Null_Element->Next->Next->Prev = List.Null_Element - 100; // специальные ошибки
+    //List.Null_Element->Next->Next = List.Null_Element - 100;
 
     if (List_Push_Front    ( 1,                          &List) == NULL)
     {
@@ -279,16 +279,16 @@ int Dump_For_Graph     (const list_k* const List, FILE* const file_graph)
             if (Current_Node->Prev->Verification == ((uintptr_t) (Current_Node->Prev) ^ Canary))
             {
                 Print_Node_Graph(Current_Node, 0xD3D3D3, file_graph);
-                fprintf (file_graph, "    %lu->%lu [style = invis, weight = 500];\n", (uintptr_t) Current_Node, (uintptr_t) Current_Node->Next);
+                fprintf (file_graph, "    node_%lx -> node_%lx [style = invis, weight = 500];\n", (uintptr_t) Current_Node, (uintptr_t) Current_Node->Next);
 
                 if (Current_Node->Next->Prev == Current_Node)
                 {
-                    fprintf (file_graph, "    %lu->%lu [color = \"pink2:goldenrod1\", dir = both];\n", (uintptr_t) Current_Node, (uintptr_t) Current_Node->Next);
+                    fprintf (file_graph, "    node_%lx -> node_%lx [color = \"pink2:goldenrod1\", dir = both];\n", (uintptr_t) Current_Node, (uintptr_t) Current_Node->Next);
                 }
 
                 else
                 {
-                    fprintf (file_graph, "    %lu->%lu [label = \"Неправильный цикл\"];\n", (uintptr_t) Current_Node, (uintptr_t) Current_Node->Next);
+                    fprintf (file_graph, "    node_%lx -> node_%lx [label = \"Неправильный цикл\"];\n", (uintptr_t) Current_Node, (uintptr_t) Current_Node->Next);
                 }
             }
 
@@ -296,23 +296,23 @@ int Dump_For_Graph     (const list_k* const List, FILE* const file_graph)
             {
                 if (Current_Node->Next->Prev == Current_Node)
                 {
-                    fprintf (file_graph, "    %lu->%lu [color = \"pink2:goldenrod1\", dir = both];\n", (uintptr_t) Current_Node, (uintptr_t) Current_Node->Next);
+                    fprintf (file_graph, "    node_%lx -> node_%lx [color = \"pink2:goldenrod1\", dir = both];\n", (uintptr_t) Current_Node, (uintptr_t) Current_Node->Next);
                 }
 
                 else
                 {
-                    fprintf (file_graph, "    %lu->%lu [label = \"Неправильный цикл\"];\n", (uintptr_t) Current_Node, (uintptr_t) Current_Node->Next);
+                    fprintf (file_graph, "    node_%lx -> node_%lx [label = \"Неправильный цикл\"];\n", (uintptr_t) Current_Node, (uintptr_t) Current_Node->Next);
                 }
 
                 Print_Node_Graph(Current_Node, 0xFFB6C1, file_graph);
-                fprintf (file_graph, "    %lu->%lu [label = \"Невозможное значение prev\"];\n", (uintptr_t) Current_Node, (uintptr_t) Current_Node->Prev);
+                fprintf (file_graph, "    node_%lx -> node_%lx [label = \"Невозможное значение prev\"];\n", (uintptr_t) Current_Node, (uintptr_t) Current_Node->Prev);
             }
         }
 
         else
         {
             Print_Node_Graph(Current_Node, 0xFFB6C1, file_graph);
-            fprintf (file_graph, "    %lu->%lu [label = \"Невозможное значение next, цикл остановлен\"];\n", (uintptr_t) Current_Node, (uintptr_t) Current_Node->Next);
+            fprintf (file_graph, "    %lx->%lx [label = \"Невозможное значение next, цикл остановлен\"];\n", (uintptr_t) Current_Node, (uintptr_t) Current_Node->Next);
             break;
         }
 
@@ -325,8 +325,8 @@ int Dump_For_Graph     (const list_k* const List, FILE* const file_graph)
     fprintf (file_graph, "    tail [shape = invhouse, label = \"tail = %p\", style = \"filled\", fillcolor = \"pink2\"];\n", List->Null_Element->Next);
     fprintf (file_graph, "\n");
 
-    fprintf (file_graph, "    {rank = same; head; %lu};\n", (uintptr_t) List->Null_Element->Prev);
-    fprintf (file_graph, "    {rank = same; tail; %lu};\n", (uintptr_t) List->Null_Element->Next);
+    fprintf (file_graph, "    {rank = same; head; node_%lx};\n", (uintptr_t) List->Null_Element->Prev);
+    fprintf (file_graph, "    {rank = same; tail; node_%lx};\n", (uintptr_t) List->Null_Element->Next);
 
 
     fprintf (file_graph, "}\n");
@@ -335,13 +335,13 @@ int Dump_For_Graph     (const list_k* const List, FILE* const file_graph)
 
 int Print_Node_Graph   (const node_k* const Current_Node, unsigned long Color, FILE* const file_graph)
 {
-    fprintf (file_graph, "    %lu [shape = Mrecord, label = <<TABLE BORDER = \"0\" CELLBORDER = \"1\" CELLSPACING = \"0\" CELLPADDING = \"4\" BGCOLOR = \"#%lx\">\n"
+    fprintf (file_graph, "    node_%lx [shape = Mrecord, label = <<TABLE BORDER = \"0\" CELLBORDER = \"1\" CELLSPACING = \"0\" CELLPADDING = \"4\" BGCOLOR = \"#%lx\">\n"
                          "        <TR> <TD COLSPAN = \"2\" BGCOLOR = \"#%06x\"> <b>ptr</b>   = %p  </TD> </TR>\n"
-                         "        <TR> <TD COLSPAN = \"2\"> <b>ver</b>   = %lu </TD> </TR>\n"
+                         "        <TR> <TD COLSPAN = \"2\"> <b>ver</b>   = %lx </TD> </TR>\n"
                          "        <TR> <TD COLSPAN = \"2\"> <b>value</b> = %d  </TD> </TR>\n\n"
                          "        <TR> <TD BGCOLOR = \"#%06x\"> <b>prev</b> = %p </TD>\n"
                          "             <TD BGCOLOR = \"#%06x\"> <b>next</b> = %p </TD> </TR>\n"
-                         "        </TABLE>>, style = \"filled\", fillcolor = \"#%lx\"];\n", (uintptr_t) Current_Node, Color, Hash_Pointer (Current_Node), Current_Node, Current_Node->Verification, Current_Node->Value, Hash_Pointer (Current_Node->Prev), Current_Node->Prev, Hash_Pointer (Current_Node->Next), Current_Node->Next, Color);
+                         "        </TABLE>>, style = \"filled\", fillcolor = \"#%lx\"];\n", (uintptr_t) Current_Node, Color, Generate_Color (Current_Node, 0x000000), Current_Node, Current_Node->Verification, Current_Node->Value, Generate_Color (Current_Node->Prev, 0x000000), Current_Node->Prev, Generate_Color (Current_Node->Next, 0x000000), Current_Node->Next, Color);
 
     return 0;
 }
@@ -722,23 +722,20 @@ char* itoa_k               (int Number, char* const Str)
     return Str;
 }
 
-// double Calculate_Contrast (unsigned long Color, unsigned long Back_Ground_Color)
-// {
-//     double r_1 = ((Color >> 16) % 0xFF) / 255.0;
-//     double g_1 = ((Color >> 8) % 0xFF) / 255.0;
-//     double b_1 = (Color % 0xFF) / 255.0;
-//     double luminance_1 = 0.2126 * r_1 + 0.7152 * g_1 + 0.0722 * b_1;
-//
-//     double r_2 = ((Back_Ground_Color >> 16) & 0xFF) / 255.0;
-//     double g_2 = ((Back_Ground_Color >> 8) & 0xFF) / 255.0;
-//     double b_2 = (Back_Ground_Color & 0xFF) / 255.0;
-//     double luminance_2 = 0.2126 * r_2 + 0.7152 * g_2 + 0.0722 * b_2;
-//
-//     double brighter = (luminance_1 > luminance_2) ? luminance_1 : luminance_2;
-//     double darker = (luminance_1 < luminance_2) ? luminance_1 : luminance_2;
-//
-//     return (brighter + 0.05) / (darker + 0.05);
-// }
+double Calculate_Contrast  (unsigned int Color, unsigned int Color_Text)
+{
+    double r_1 = ((Color >> 16) & 0xFF) / 255.0;
+    double g_1 = ((Color >> 8) & 0xFF) / 255.0;
+    double b_1 = (Color & 0xFF) / 255.0;
+    double luminance_1 = 0.2126 * r_1 + 0.7152 * g_1 + 0.0722 * b_1;
+
+    double r_2 = ((Color_Text >> 16) & 0xFF) / 255.0;
+    double g_2 = ((Color_Text >> 8) & 0xFF) / 255.0;
+    double b_2 = (Color_Text & 0xFF) / 255.0;
+    double luminance_2 = 0.2126 * r_2 + 0.7152 * g_2 + 0.0722 * b_2;
+
+    return (fmax(luminance_1, luminance_2) + 0.05) / (fmin(luminance_1, luminance_2) + 0.05);
+}
 
 unsigned int Hash_Pointer (const void *ptr)
 {
@@ -755,4 +752,17 @@ unsigned int Hash_Pointer (const void *ptr)
     }
 
     return Hash;
+}
+
+unsigned int Generate_Color        (const void *ptr, unsigned int Color_Text)
+{
+    unsigned int Color = Hash_Pointer (ptr) & 0xFFFFFF;
+
+    if (Calculate_Contrast (Color, Color_Text) < Minimum_Contrast_Ratio)
+    {
+        unsigned int Reverse_Color = (~Color) & 0xFFFFFF;
+        return Reverse_Color;
+    }
+
+    return Color;
 }

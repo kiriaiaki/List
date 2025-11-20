@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <assert.h>
+#include <math.h>
 #include <string.h>
 #include <stdint.h>
 
@@ -37,7 +38,7 @@ const char* Array_Name_List_Error[Quantity_Error] = {
     "!!!BAD CANARY!!!",
     "!!!BAD NEXT!!!",
     "!!!BAD PREV!!!",
-    "!!!BAD CYCLE!!!",
+    "!!!BAD LOOP!!!",
     "!!!BAD SIZE!!!",
 };
 
@@ -72,4 +73,6 @@ int Start_Logfile                ();
 int Print_Separator_In_Log       (const size_t Len_Separator, FILE* file_html);
 int Reverse_Str                  (char* const Str);
 char* itoa_k                     (int Number, char* const Str);
+double Calculate_Contrast        (unsigned int Color, unsigned int Color_Text);
 unsigned int Hash_Pointer        (const void *ptr);
+unsigned int Generate_Color      (const void *ptr, unsigned int Color_Text);
